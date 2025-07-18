@@ -10,8 +10,8 @@ interface SectionPageProps {
 
 const validSections = ['music', 'teaching', 'code'] as const;
 
-const SectionPage = ({ params }: SectionPageProps) => {
-  const { section } = params;
+const SectionPage = async ({ params }: SectionPageProps) => {
+  const { section } = await params;
   
   if (!validSections.includes(section as unknown as typeof validSections[number])) {
     notFound();

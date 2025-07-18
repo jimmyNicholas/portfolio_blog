@@ -18,15 +18,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen bg-gray-50 py-8">
           <div className="container mx-auto px-4">
             {/* Hub section - always visible */}
             <div className="mb-12">
-              <div className="flex flex-col items-center space-y-2">
+              <div className="flex flex-col items-center space-y-4">
                 {/* Main node */}
                 <div className="w-full max-w-md">
                   <div
-                    className="border-2 border-gray-800 rounded-lg px-6 py-4 bg-white text-2xl font-bold w-full text-center cursor-pointer hover:bg-gray-50 transition-colors"
+                    className={`border-2 border-gray-800 rounded-lg px-6 py-4 bg-white text-2xl font-bold w-full text-center cursor-pointer hover:bg-gray-50 transition-colors ${
+                      pathname === "/" ? "bg-gray-100" : ""
+                    }`}
                     onClick={() => router.push("/")}
                   >
                     Jimmy Nicholas
