@@ -21,8 +21,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="min-h-screen bg-gray-50 py-12">
           <div className="container mx-auto px-4">
             {/* Hub section - always visible */}
-            <div className="mb-12">
-              <div className="flex flex-col items-center space-y-2">
+            <div className="mb-16">
+              <div className="flex flex-col items-center space-y-8">
                 {/* Main node */}
                 <div className="w-full max-w-md">
                   <div
@@ -34,7 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
 
                 {/* Child nodes */}
-                <div className="flex space-x-4 w-full max-w-md">
+                <div className="flex space-x-8 w-full max-w-md">
                   <div
                     className={`border-2 border-gray-800 rounded-lg px-6 py-4 bg-white text-lg flex-1 text-center cursor-pointer hover:bg-gray-50 transition-colors ${
                       pathname === "/music" ? "bg-gray-100" : ""
