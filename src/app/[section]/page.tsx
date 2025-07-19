@@ -1,5 +1,5 @@
-import { BlogList } from '../components/BlogComponents';
-import { blogPosts } from '../data/blogPosts';
+import { ContentWindow } from '../components/ContentWindow';
+import { getContentForSection, ContentSection } from '../data';
 import { notFound } from 'next/navigation';
 
 interface SectionPageProps {
@@ -8,27 +8,32 @@ interface SectionPageProps {
   };
 }
 
-const validSections = ['music', 'teaching', 'code'] as const;
+const validSections = ['work', 'about', 'thoughts', 'archive'] as const;
 
 const SectionPage = async ({ params }: SectionPageProps) => {
   const { section } = await params;
   
-  if (!validSections.includes(section as unknown as typeof validSections[number])) {
+  if (!validSections.includes(section as ContentSection)) {
     notFound();
   }
-  
-  const sectionPosts = blogPosts.filter(post => post.section === section);
-  const title = section.charAt(0).toUpperCase() + section.slice(1);
-  
-  return <BlogList posts={sectionPosts} title={title} />;
+
+  const sectionContent = getContentForSection(section as ContentSection);
+
+  return (
+    <ContentWindow 
+      section={section as ContentSection} 
+      items={sectionContent} 
+    />
+  );
 };
 
 export default SectionPage;
 
 export function generateStaticParams() {
   return [
-    { section: 'music' },
-    { section: 'teaching' }, 
-    { section: 'code' },
+    { section: 'work' },
+    { section: 'about' },
+    { section: 'thoughts' },
+    { section: 'archive' },
   ];
 }
