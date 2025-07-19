@@ -1,7 +1,150 @@
 @import "tailwindcss";
 
 @layer base {
-  html {
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  
+  #__next {
+    height: 100%;
+  }
+}
+
+@layer utilities {
+  /* Theme-aware text colors */
+  .text-primary {
+    color: var(--palette-primary);
+  }
+  
+  .text-secondary {
+    color: var(--palette-secondary);
+  }
+  
+  .text-accent {
+    color: var(--palette-accent);
+  }
+  
+  .text-themed {
+    color: var(--palette-text);
+  }
+  
+  .text-muted {
+    color: var(--palette-accent);
+  }
+  
+  /* Theme-aware backgrounds */
+  .bg-themed {
+    background-color: var(--palette-background);
+  }
+  
+  .bg-accent {
+    background-color: var(--palette-accent);
+  }
+  
+  /* Theme-aware borders */
+  .border-themed {
+    border-color: var(--palette-text);
+  }
+  
+  .border-accent {
+    border-color: var(--palette-accent);
+  }
+  
+  /* Theme-aware effects */
+  .themed-filter {
+    filter: sepia(var(--effect-warmth)) saturate(var(--effect-saturation));
+  }
+  
+  .themed-glow {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--palette-accent) 40%, transparent);
+  }
+  
+  .themed-glow-strong {
+    box-shadow: 0 0 30px color-mix(in srgb, var(--palette-accent) 80%, transparent);
+  }
+  
+  /* Tag styling */
+  .themed-tag {
+    background-color: color-mix(in srgb, var(--palette-accent) 20%, transparent);
+    color: var(--palette-text);
+    border: 1px solid color-mix(in srgb, var(--palette-accent) 40%, transparent);
+  }
+  
+  /* Business mode overrides */
+  .business-mode .themed-glow,
+  .business-mode .themed-glow-strong {
+    box-shadow: none;
+  }
+  
+  .business-mode .themed-filter {
+    filter: none;
+  }
+  
+  /* Business Light Mode */
+  .business-light .themed-tag {
+    background-color: #f5f5f5;
+    color: #333333;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .business-light .text-themed {
+    color: #000000;
+  }
+  
+  .business-light .text-muted {
+    color: #666666;
+  }
+  
+  .business-light .text-accent {
+    color: #333333;
+  }
+  
+  .business-light .border-themed {
+    border-color: #000000;
+  }
+  
+  .business-light .border-accent {
+    border-color: #666666;
+  }
+  
+  /* Business Dark Mode - Much lighter text */
+  .business-dark .themed-tag {
+    background-color: #404040;
+    color: #e0e0e0;
+    border: 1px solid #666666;
+  }
+  
+  .business-dark .text-themed {
+    color: #ffffff !important;
+  }
+  
+  .business-dark .text-muted {
+    color: #b0b0b0 !important;
+  }
+  
+  .business-dark .text-accent {
+    color: #e0e0e0 !important;
+  }
+  
+  .business-dark .border-themed {
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  
+  .business-dark .border-accent {
+    border-color: #cccccc;
+  }
+  
+  /* Scanlines effect */
+  .crt-scanlines {
+    position: relative;
+  }
+  
+  /* Smooth transitions for all interactive elements */
+  .transition-theme {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
