@@ -1,5 +1,3 @@
-import { ContentWindow } from '../components/ContentWindow';
-import { getContentForSection, ContentSection } from '../data';
 import { notFound } from 'next/navigation';
 
 interface SectionPageProps {
@@ -8,22 +6,30 @@ interface SectionPageProps {
   };
 }
 
-const validSections = ['work', 'about', 'thoughts', 'archive'] as const;
+const validSections = ['about', 'thoughts', 'archive'] as const;
 
 const SectionPage = async ({ params }: SectionPageProps) => {
   const { section } = await params;
   
-  if (!validSections.includes(section as ContentSection)) {
+  // Work has its own dedicated page now
+  if (section === 'work') {
+    notFound();
+  }
+  
+  if (!validSections.includes(section as typeof validSections[number])) {
     notFound();
   }
 
-  const sectionContent = getContentForSection(section as ContentSection);
-
+  // Return simple content for other sections for now
   return (
-    <ContentWindow 
-      section={section as ContentSection} 
-      items={sectionContent} 
-    />
+    <div className="max-w-2xl mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-8 text-center text-themed themed-filter">
+        {section.charAt(0).toUpperCase() + section.slice(1)}
+      </h1>
+      <p className="text-accent">
+        {section} content coming soon...
+      </p>
+    </div>
   );
 };
 
@@ -31,7 +37,6 @@ export default SectionPage;
 
 export function generateStaticParams() {
   return [
-    { section: 'work' },
     { section: 'about' },
     { section: 'thoughts' },
     { section: 'archive' },

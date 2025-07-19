@@ -109,8 +109,8 @@ export const ContentWindow: React.FC<ContentWindowProps> = ({ section, items }) 
 
       case 'bio':
         return (
-          <div key={item.id} className="space-y-6">
-            <div className="space-y-4">
+          <div key={item.id} className="space-y-6 px-8">
+            <div className="space-y-4 pb-4">
               {item.content.map((paragraph, index) => (
                 <p key={index} className="text-accent leading-relaxed text-lg">
                   {paragraph}
@@ -126,7 +126,7 @@ export const ContentWindow: React.FC<ContentWindowProps> = ({ section, items }) 
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto py-4">
       <h1 className="text-3xl font-bold mb-8 text-center text-themed themed-filter">
         {getSectionTitle(section)}
       </h1>
