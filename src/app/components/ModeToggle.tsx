@@ -1,14 +1,15 @@
 "use client";
 import React from "react";
+import { Sun, Moon, Palette, Briefcase } from "lucide-react";
 import { useThemeContext } from "./ThemeProvider";
 
 const ModeToggle: React.FC = () => {
-  const { 
-    themeMode, 
-    styleMode, 
-    toggleTheme, 
-    toggleStyle, 
-    palette 
+  const {
+    themeMode,
+    styleMode,
+    toggleTheme,
+    toggleStyle,
+    palette,
   } = useThemeContext();
 
   const buttonStyle = {
@@ -16,28 +17,45 @@ const ModeToggle: React.FC = () => {
     color: palette.text,
     borderColor: palette.secondary,
     borderWidth: "2px",
-    borderRadius: "8px",
+    borderRadius: "12px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
   };
 
-  const buttonClassName = "px-4 py-2 rounded-lg border-2 transition-all font-medium hover:opacity-80";
+  const buttonClassName =
+    "group flex items-center justify-center w-14 h-14 border-2 rounded-xl bg-themed/80 text-accent hover:bg-accent hover:text-themed transition-colors shadow-md font-mono text-base relative";
 
   return (
-    <div className="fixed top-4 right-4 flex gap-2 z-[100]">
+    <div className="fixed top-4 right-12 flex flex-row gap-3 z-[100]">
       <button
         onClick={toggleTheme}
         className={buttonClassName}
         style={buttonStyle}
+        aria-label="Toggle theme"
       >
-        {themeMode === "dark" ? "🌙" : "☀️"}
+        {themeMode === "dark" ? (
+          <Moon size={32} strokeWidth={2.2} />
+        ) : (
+          <Sun size={32} strokeWidth={2.2} />
+        )}
+        <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity absolute right-1/2 translate-x-1/2 top-full mt-2 px-3 py-1 rounded bg-secondary text-themed text-sm whitespace-nowrap shadow-lg z-50">
+          {themeMode === "dark" ? "Dark Mode" : "Light Mode"}
+        </span>
       </button>
 
       <button
         onClick={toggleStyle}
         className={buttonClassName}
         style={buttonStyle}
+        aria-label="Toggle style mode"
       >
-        {styleMode === "business" ? "💼 Business" : "🎨 Creative"}
+        {styleMode === "business" ? (
+          <Briefcase size={32} strokeWidth={2.2} />
+        ) : (
+          <Palette size={32} strokeWidth={2.2} />
+        )}
+        <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity absolute right-1/2 translate-x-1/2 top-full mt-2 px-3 py-1 rounded bg-secondary text-themed text-sm whitespace-nowrap shadow-lg z-50">
+          {styleMode === "business" ? "Business Mode" : "Creative Mode"}
+        </span>
       </button>
     </div>
   );

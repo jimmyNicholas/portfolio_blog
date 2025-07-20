@@ -91,8 +91,6 @@ const Navigation: React.FC<NavigationProps> = ({
   const navItems = [
     { path: "/work", label: "work" },
     { path: "/about", label: "about" },
-    { path: "/thoughts", label: "thoughts" },
-    { path: "/archive", label: "archive" },
   ];
 
   return (
@@ -113,9 +111,9 @@ const Navigation: React.FC<NavigationProps> = ({
         ease: [0.0, 0.0, 0.2, 1],
       }}
     >
-      <motion.div className="flex flex-col items-center space-y-4" layout>
+      <motion.div className={`flex flex-col items-center space-y-4 ${isHomePage ? 'w-full max-w-4xl' : ''}`} layout>
         {/* Main Title Button */}
-        <motion.div className="w-full max-w-2xl relative" layout>
+        <motion.div className={`w-full max-w-2xl relative`} layout>
           {!isBusinessMode && <div style={foregroundEffectStyles.overlay} />}
           <div
             className={`border-2 rounded-lg px-10 py-8 text-4xl font-bold w-full text-center cursor-pointer transition-all duration-300 relative ${
@@ -131,14 +129,14 @@ const Navigation: React.FC<NavigationProps> = ({
         </motion.div>
 
         {/* Navigation Buttons */}
-        <motion.div className="flex space-x-8 w-full max-w-2xl" layout>
+        <motion.div className={`flex space-x-8 w-full max-w-2xl`} layout>
           {navItems.map(({ path, label }) => (
-            <motion.div key={path} className="flex-1 relative" layout>
+            <motion.div key={path} className="flex-1 relative min-w-0" layout>
               {!isBusinessMode && <div style={foregroundEffectStyles.overlay} />}
               <div
                 className={`border-2 rounded-lg px-8 py-6 text-2xl text-center cursor-pointer transition-all duration-300 relative ${
                   !isBusinessMode ? "crt-scanlines" : ""
-                }`}
+                } w-full`}
                 onClick={() =>
                   handleNavigation(
                     label as "work" | "about" | "thoughts" | "archive"

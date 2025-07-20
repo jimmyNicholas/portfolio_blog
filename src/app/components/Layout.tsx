@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useThemeContext } from "./ThemeProvider";
 import Navigation from "./Navigation";
 import ModeToggle from "./ModeToggle";
+import SocialLinks from "../components/SocialLinks";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -20,6 +21,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     >
       {!isBusinessMode && <div style={effectStyles.overlay} />}
 
+      <SocialLinks />
       <ModeToggle />
 
       <div className="min-h-full">
