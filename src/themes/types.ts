@@ -49,4 +49,4 @@ export interface ColorPalette {
 export interface EffectStyles {
   container: React.CSSProperties;
   overlay: React.CSSProperties;
-}
+} 
