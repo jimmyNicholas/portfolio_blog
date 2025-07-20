@@ -55,9 +55,18 @@
     border-color: var(--palette-accent);
   }
 
+  .border-secondary {
+    border-color: var(--palette-secondary);
+  }
+
   /* Theme-aware effects */
   .themed-filter {
     filter: sepia(var(--effect-warmth)) saturate(var(--effect-saturation));
+  }
+
+  /* Style mode overrides using data attributes */
+  [data-style="business"] .themed-filter {
+    filter: none;
   }
 
   .themed-glow {
@@ -81,74 +90,113 @@
     border: 1px solid color-mix(in srgb, var(--palette-accent) 40%, transparent);
   }
 
-  /* Business mode overrides */
-  .business-mode .themed-glow,
-  .business-mode .themed-glow-strong {
+  /* Style mode overrides */
+  [data-style="business"] .themed-glow,
+  [data-style="business"] .themed-glow-strong {
     box-shadow: none;
   }
 
-  .business-mode .themed-filter {
+  [data-style="business"] .themed-filter {
     filter: none;
   }
 
-  /* Business Light Mode */
-  .business-light .themed-tag {
+  /* Theme mode specific overrides */
+  [data-theme="light"][data-style="business"] .themed-tag {
     background-color: #f5f5f5;
     color: #333333;
     border: 1px solid #e0e0e0;
   }
 
-  .business-light .text-themed {
-    color: #000000;
-  }
-
-  .business-light .text-muted {
-    color: #666666;
-  }
-
-  .business-light .text-accent {
-    color: #333333;
-  }
-
-  .business-light .border-themed {
-    border-color: #000000;
-  }
-
-  .business-light .border-accent {
-    border-color: #666666;
-  }
-
-  /* Business Dark Mode - Much lighter text */
-  .business-dark .themed-tag {
-    background-color: #404040;
-    color: #e0e0e0;
-    border: 1px solid #666666;
-  }
-
-  .business-dark .text-themed {
-    color: #ffffff !important;
-  }
-
-  .business-dark .text-muted {
-    color: #b0b0b0 !important;
-  }
-
-  .business-dark .text-accent {
-    color: #e0e0e0 !important;
-  }
-
-  .business-dark .border-themed {
-    color: #ffffff;
-    border-color: #ffffff;
-  }
-
-  .business-dark .border-accent {
-    border-color: #cccccc;
-  }
-
   /* Scanlines effect */
   .crt-scanlines {
     position: relative;
+  }
+
+  .crt-scanlines::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 1;
+    animation: scanlines var(--scanline-speed, 0.3s) linear infinite; /* Configurable speed */
+  }
+
+  @keyframes scanlines {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(4px);
+    }
+  }
+
+  /* Business mode overrides - disable all effects */
+  [data-style="business"] .crt-scanlines::before,
+  [data-style="business"] .film-grain::after,
+  [data-style="business"] .chromatic-aberration::before,
+  [data-style="business"] .chromatic-aberration::after {
+    display: none !important; /* Force override */
+  }
+
+  /* Film grain effect */
+  .film-grain {
+    position: relative;
+  }
+
+  .film-grain::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.15; /* Reduced opacity */
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: overlay;
+  }
+
+  /* Chromatic aberration effect */
+  .chromatic-aberration {
+    position: relative;
+  }
+
+  .chromatic-aberration::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    filter: blur(0.5px);
+    transform: translateX(-1px);
+    z-index: -1;
+    mix-blend-mode: screen;
+  }
+
+  .chromatic-aberration::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    filter: blur(0.5px);
+    transform: translateX(1px);
+    z-index: -1;
+    mix-blend-mode: screen;
   }
 
   /* Smooth transitions for all interactive elements */
@@ -159,15 +207,5 @@
   /* Overlay scroll prevention */
   .overlay-open {
     overflow: hidden;
-  }
-
-  /* Enhanced hover effect */
-  .themed-glow {
-    box-shadow: 0 0 20px
-      color-mix(in srgb, var(--palette-accent) 40%, transparent);
-  }
-
-  .business-mode .themed-glow {
-    box-shadow: none;
   }
 }
