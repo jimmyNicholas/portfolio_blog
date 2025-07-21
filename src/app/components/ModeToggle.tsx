@@ -8,7 +8,7 @@ import {
 } from "react-icons/ai";
 import { useThemeContext } from "./ThemeProvider";
 import PortfolioButton from "./PortfolioButton";
-
+import PortfolioTooltip from "./PortfolioTooltip";
 
 const ModeToggle: React.FC = () => {
   const { themeMode, styleMode, toggleTheme, toggleStyle } = useThemeContext();
@@ -21,9 +21,9 @@ const ModeToggle: React.FC = () => {
         ) : (
           <AiFillSun size={32} strokeWidth={2.2} />
         )}
-        <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity absolute right-1/2 translate-x-1/2 top-full mt-2 px-3 py-1 rounded bg-secondary text-themed text-sm whitespace-nowrap shadow-lg z-50">
+        <PortfolioTooltip>
           {themeMode === "dark" ? "Dark Mode" : "Light Mode"}
-        </span>
+        </PortfolioTooltip>
       </PortfolioButton>
 
       <PortfolioButton onClick={toggleStyle} aria-label="Toggle style mode">
@@ -32,9 +32,9 @@ const ModeToggle: React.FC = () => {
         ) : (
           <AiFillPicture size={32} strokeWidth={2.2} />
         )}
-        <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity absolute right-1/2 translate-x-1/2 top-full mt-2 px-3 py-1 rounded bg-secondary text-themed text-sm whitespace-nowrap shadow-lg z-50">
+        <PortfolioTooltip>
           {styleMode === "business" ? "Business Mode" : "Creative Mode"}
-        </span>
+        </PortfolioTooltip>
       </PortfolioButton>
     </div>
   );
