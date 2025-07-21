@@ -4,26 +4,30 @@ import { SiBandcamp } from "react-icons/si";
 import PortfolioButton from "./PortfolioButton";
 import PortfolioTooltip from "./PortfolioTooltip";
 
+const defaultSize = 32;
+const defaultStrokeWidth = 2.2;
 const links = [
   {
     href: "https://github.com/jimmyNicholas",
     label: "GitHub",
-    icon: <AiFillGithub size={32} strokeWidth={2.2} />,
+    icon: <AiFillGithub size={defaultSize} strokeWidth={defaultStrokeWidth} />,
   },
   {
     href: "https://linkedin.com/in/jimmy-nicholas/",
     label: "LinkedIn",
-    icon: <AiFillLinkedin size={32} strokeWidth={2.2} />,
+    icon: (
+      <AiFillLinkedin size={defaultSize} strokeWidth={defaultStrokeWidth} />
+    ),
   },
   {
     href: "mailto:jimmynicholas@duck.com",
     label: "Email",
-    icon: <AiFillMail size={32} strokeWidth={2.2} />,
+    icon: <AiFillMail size={defaultSize} strokeWidth={defaultStrokeWidth} />,
   },
   {
     href: "https://lashlash.bandcamp.com/",
     label: "Bandcamp",
-    icon: <SiBandcamp size={32} strokeWidth={2.2} />,
+    icon: <SiBandcamp size={defaultSize} strokeWidth={defaultStrokeWidth} />,
   },
 ];
 
