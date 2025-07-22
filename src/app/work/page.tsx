@@ -15,65 +15,68 @@ const projects: Project[] = [
   {
     id: "portfolio-vaporwave",
     title: "Portfolio Site with Vaporwave Effects",
-    description: "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
+    description:
+      "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
     tags: ["React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
-    link: "github.com/jimmy/portfolio-vaporwave",
+    link: "https://jimmynicholas.com",
   },
   {
-    id: "tidy-first-tool",
-    title: "Tidy First: Code Refactoring Tool",
-    description: "Implementation of Kent Beck's refactoring methodology as an automated tool. Focuses on small, safe transformations that preserve behavior.",
-    tags: ["TypeScript", "Node.js", "AST Parser", "CLI"],
-    link: "github.com/jimmy/tidy-first",
+    id: "tone-clock",
+    title: "Tone Clock",
+    description: "A clock that uses the time to play the circle of fifths.",
+    tags: ["React", "TypeScript", "Next.js", "Tone JS"],
+    link: "https://jimmynicholas.github.io/tone-clock/",
   },
   {
-    id: "retro-game-engine",
-    title: "Retro Game Engine",
-    description: "A pixel-perfect game engine built for creating 8-bit style games. Features sprite management, collision detection, and sound synthesis.",
-    tags: ["JavaScript", "Canvas API", "Web Audio API", "Game Dev"],
-    link: "github.com/jimmy/retro-engine",
+    id: "impact-db",
+    title: "Impact DB",
+    description:
+      "A full-stack database that extends Impact English College's paper-based system.",
+    tags: ["TypeScript", "React", "Django"],
+    link: "https://github.com/jimmyNicholas/impact_db",
   },
   {
-    id: "css-art-gallery",
-    title: "CSS Art Gallery",
-    description: "Collection of pure CSS artworks including geometric patterns, animated shapes, and experimental visual effects.",
-    tags: ["CSS", "Sass", "Animation", "Creative Coding"],
-    link: "css-art.jimmy.dev",
+    id: "annoying-piano",
+    title: "The Annoying Piano",
+    description: "A piano that evolves as you play.",
+    tags: ["React", "TypeScript", "Next.js", "Tone JS"],
+    link: "annoying-piano.vercel.app/",
   },
   {
-    id: "terminal-portfolio",
-    title: "Terminal Portfolio",
-    description: "Interactive terminal-style portfolio with command-line interface. Users can navigate and explore projects through terminal commands.",
-    tags: ["React", "TypeScript", "Terminal UI", "CLI"],
-    link: "terminal.jimmy.dev",
+    id: "vocab-finder",
+    title: "Vocab Finder",
+    description:
+      "A tool that helps ESL teachers quickly find information on lists of vocabulary words ",
+    tags: ["JavaScript", "CSS", "HTML", "Figma"],
+    link: "https://vocabfinder.jimmynicholas.com",
   },
   {
-    id: "synthwave-player",
-    title: "Synthwave Music Player",
-    description: "Web-based music player with retro synthwave visualizer. Features waveform visualization and custom audio effects.",
-    tags: ["Web Audio API", "Canvas", "JavaScript", "Audio"],
-    link: "synthwave.jimmy.dev",
-  }
+    id: "sunsets",
+    title: "Sunsets",
+    description: "A collection of hip hop beats based on sunsets.",
+    tags: ["Ableton", "cassettes", "sampling", "collaboration"],
+    link: "https://lashlash.bandcamp.com/album/sunsets",
+  },
 ];
 
 // Tech abbreviations mapping
 const techAbbreviations: Record<string, string> = {
-  "React": "React",
-  "TypeScript": "TS",
+  React: "React",
+  TypeScript: "TS",
   "Next.js": "Next",
-  "CSS": "CSS",
+  CSS: "CSS",
   "SVG Filters": "SVG",
   "Node.js": "Node",
   "AST Parser": "AST",
-  "CLI": "CLI",
-  "JavaScript": "JS",
+  CLI: "CLI",
+  JavaScript: "JS",
   "Canvas API": "Canvas",
   "Web Audio API": "Audio",
   "Game Dev": "Game",
-  "Sass": "Sass",
-  "Animation": "Anim",
+  Sass: "Sass",
+  Animation: "Anim",
   "Creative Coding": "Creative",
-  "Terminal UI": "Term"
+  "Terminal UI": "Term",
 };
 
 const WorkPage = () => {
@@ -89,12 +92,12 @@ const WorkPage = () => {
       fontFamily: "monospace",
       boxShadow: isHovered
         ? "0 0 30px color-mix(in srgb, var(--palette-primary) 80%, transparent)"
-        : "0 0 20px color-mix(in srgb, var(--palette-secondary) 20%, transparent)"
+        : "0 0 20px color-mix(in srgb, var(--palette-secondary) 20%, transparent)",
     });
 
     return (
-            <motion.div
-        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 ${
+      <motion.div
+        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 min-h-[290px] ${
           !isBusinessMode ? "crt-scanlines" : ""
         } p-6 h-64 flex flex-col`}
         style={getCardStyle()}
@@ -102,57 +105,55 @@ const WorkPage = () => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-         
-       <div className="space-y-4 flex-1 flex flex-col"> 
-        {/* Title */}
-        <div className="font-mono font-bold text-themed text-base">
-          {project.title}
-        </div>
+        <div className="space-y-4 flex-1 flex flex-col">
+          {/* Title */}
+          <div className="font-mono font-bold text-themed text-base">
+            {project.title}
+          </div>
 
-        {/* Description */}
-        <div className="text-accent text-sm leading-relaxed flex-1">
-          {project.description.split('.')[0] + '.'}
-        </div>
+          {/* Description */}
+          <div className="text-accent text-sm leading-relaxed flex-1">
+            {project.description.split(".")[0] + "."}
+          </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-accent"
-            >
-              {techAbbreviations[tag] || tag}
-            </span>
-          ))}
-        </div>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            {project.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-accent"
+              >
+                {techAbbreviations[tag] || tag}
+              </span>
+            ))}
+          </div>
 
-        {/* Link */}
-        <div className="mt-auto">
-          {project.link ? (
-            <a
-              href={`https://${project.link}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent text-sm hover:text-secondary transition-colors font-mono"
-            >
-              {project.link}
-            </a>
-          ) : (
-            <div className="text-muted text-sm font-mono">
-              Coming soon...
-            </div>
-          )}
+          {/* Link */}
+          <div className="mt-auto">
+            {project.link ? (
+              <a
+                href={`https://${project.link}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent text-sm hover:text-secondary transition-colors font-mono"
+              >
+                {project.link}
+              </a>
+            ) : (
+              <div className="text-muted text-sm font-mono">Coming soon...</div>
+            )}
+          </div>
         </div>
-      </div>
       </motion.div>
     );
   };
 
   const ProjectGrid = () => (
-    <div 
+    <div
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-2 p-8 rounded-3xl"
       style={{
-        backgroundColor: "color-mix(in srgb, var(--palette-background) 30%, black 70%)"
+        backgroundColor:
+          "color-mix(in srgb, var(--palette-background) 30%, black 70%)",
       }}
     >
       {projects.map((project) => (
