@@ -1,16 +1,33 @@
 import React from "react";
-import { Github, Linkedin } from "lucide-react";
+import { AiFillGithub, AiFillLinkedin, AiFillMail } from "react-icons/ai";
+import { SiBandcamp } from "react-icons/si";
+import PortfolioButton from "./PortfolioButton";
+import PortfolioTooltip from "./PortfolioTooltip";
 
+const defaultSize = 32;
+const defaultStrokeWidth = 2.2;
 const links = [
   {
     href: "https://github.com/jimmyNicholas",
     label: "GitHub",
-    icon: <Github size={32} strokeWidth={2.2} />,
+    icon: <AiFillGithub size={defaultSize} strokeWidth={defaultStrokeWidth} />,
   },
   {
     href: "https://linkedin.com/in/jimmy-nicholas/",
     label: "LinkedIn",
-    icon: <Linkedin size={32} strokeWidth={2.2} />,
+    icon: (
+      <AiFillLinkedin size={defaultSize} strokeWidth={defaultStrokeWidth} />
+    ),
+  },
+  {
+    href: "mailto:jimmynicholas@duck.com",
+    label: "Email",
+    icon: <AiFillMail size={defaultSize} strokeWidth={defaultStrokeWidth} />,
+  },
+  {
+    href: "https://lashlash.bandcamp.com/",
+    label: "Bandcamp",
+    icon: <SiBandcamp size={defaultSize} strokeWidth={defaultStrokeWidth} />,
   },
 ];
 
@@ -18,21 +35,18 @@ const SocialLinks: React.FC = () => {
   return (
     <div className="fixed top-4 left-12 z-[100] flex flex-row gap-3">
       {links.map((link) => (
-        <a
+        <PortfolioButton
           key={link.href}
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex items-center justify-center w-14 h-14 border-2 border-secondary rounded-xl bg-themed/80 text-accent hover:bg-accent hover:text-themed transition-colors shadow-md font-mono text-base relative"
+          onClick={() => window.open(link.href, "_blank")}
+          aria-label={link.label}
+          className="group flex items-center justify-center w-14 h-14 border-2 border-secondary rounded-xl bg-themed/80 text-primary hover:bg-accent hover:text-themed transition-colors shadow-md font-mono text-base relative"
         >
           {link.icon}
-          <span className="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 rounded bg-secondary text-themed text-sm whitespace-nowrap shadow-lg z-50">
-            {link.label}
-          </span>
-        </a>
+          <PortfolioTooltip>{link.label}</PortfolioTooltip>
+        </PortfolioButton>
       ))}
     </div>
   );
 };
 
-export default SocialLinks; 
+export default SocialLinks;
