@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useThemeContext } from "./ThemeProvider";
 import Navigation from "./Navigation";
 import ModeToggle from "./ModeToggle";
@@ -8,11 +8,15 @@ import SocialLinks from "../components/SocialLinks";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const { isBusinessMode, isDarkMode, effectStyles } = useThemeContext();
 
-  // No longer need to set body classes - useTheme hook handles data attributes
-
   const isHomePage = pathname === "/";
+
+  React.useEffect(() => {
+    router.prefetch("/about");
+    router.prefetch("/work");
+  }, [router]);
 
   return (
     <div

@@ -21,12 +21,6 @@ const Navigation: React.FC<NavigationProps> = ({
   const pathname = usePathname();
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
-  const handleNavigation = (
-    page: "work" | "about" | "thoughts" | "archive"
-  ) => {
-    router.push(`/${page}`);
-  };
-
   // Get button styles based on state and type
   const getButtonStyle = (path: string, type: "title" | "nav" = "nav") => {
     const isSelected = pathname === path;
@@ -138,9 +132,7 @@ const Navigation: React.FC<NavigationProps> = ({
                   !isBusinessMode ? "crt-scanlines" : ""
                 } w-full`}
                 onClick={() =>
-                  handleNavigation(
-                    label as "work" | "about" | "thoughts" | "archive"
-                  )
+                  router.push(path)
                 }
                 onMouseEnter={() => setHoveredButton(path)}
                 onMouseLeave={() => setHoveredButton(null)}
