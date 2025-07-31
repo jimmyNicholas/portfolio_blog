@@ -18,14 +18,14 @@ const projects: Project[] = [
     description:
       "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
     tags: ["React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
-    link: "https://jimmynicholas.com",
+    link: "jimmynicholas.com",
   },
   {
     id: "tone-clock",
     title: "Tone Clock",
     description: "A clock that uses the time to play the circle of fifths.",
     tags: ["React", "TypeScript", "Next.js", "Tone JS"],
-    link: "https://jimmynicholas.github.io/tone-clock/",
+    link: "jimmynicholas.github.io/tone-clock/",
   },
   {
     id: "impact-db",
@@ -33,14 +33,14 @@ const projects: Project[] = [
     description:
       "A full-stack database that extends Impact English College's paper-based system.",
     tags: ["TypeScript", "React", "Django"],
-    link: "https://github.com/jimmyNicholas/impact_db",
+    link: "github.com/jimmyNicholas/impact_db",
   },
   {
     id: "annoying-piano",
     title: "The Annoying Piano",
     description: "A piano that evolves as you play.",
     tags: ["React", "TypeScript", "Next.js", "Tone JS"],
-    link: "annoying-piano.vercel.app/",
+    link: "annoying-piano.vercel.app",
   },
   {
     id: "vocab-finder",
@@ -48,14 +48,14 @@ const projects: Project[] = [
     description:
       "A tool that helps ESL teachers quickly find information on lists of vocabulary words ",
     tags: ["JavaScript", "CSS", "HTML", "Figma"],
-    link: "https://vocabfinder.jimmynicholas.com",
+    link: "vocabfinder.jimmynicholas.com",
   },
   {
     id: "sunsets",
     title: "Sunsets",
     description: "A collection of hip hop beats based on sunsets.",
     tags: ["Ableton", "cassettes", "sampling", "collaboration"],
-    link: "https://lashlash.bandcamp.com/album/sunsets",
+    link: "lashlash.bandcamp.com/album/sunsets",
   },
 ];
 
@@ -97,7 +97,7 @@ const WorkPage = () => {
 
     return (
       <motion.div
-        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 min-h-[290px] ${
+        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 min-h-[350px] ${
           !isBusinessMode ? "crt-scanlines" : ""
         } p-6 h-64 flex flex-col`}
         style={getCardStyle()}
@@ -135,7 +135,13 @@ const WorkPage = () => {
                 href={`https://${project.link}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent text-sm hover:text-secondary transition-colors font-mono"
+                className="text-accent text-sm hover:text-secondary transition-colors font-mono break-all"
+                style={{
+                  wordBreak: 'break-all',
+                  overflowWrap: 'break-word',
+                  maxWidth: '100%',
+                  display: 'block'
+                }}
               >
                 {project.link}
               </a>
