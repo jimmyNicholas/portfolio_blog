@@ -33,6 +33,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           className="container mx-auto px-4 py-8 relative space-y-12"
           style={{ zIndex: 10 }}
         >
+          {/* Hidden h1 for accessibility - the visible title is in Navigation */}
+          <h1 className="sr-only">Jimmy Nicholas - Developer, Educator, and Musician</h1>
+          
           <Navigation
             isBusinessMode={isBusinessMode}
             isDarkMode={isDarkMode}

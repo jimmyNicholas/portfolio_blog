@@ -10,24 +10,24 @@ const links = [
   {
     href: "https://github.com/jimmyNicholas",
     label: "GitHub",
-    icon: <AiFillGithub size={defaultSize} strokeWidth={defaultStrokeWidth} />,
+    icon: <AiFillGithub size={defaultSize} strokeWidth={defaultStrokeWidth} aria-label="GitHub" />,
   },
   {
     href: "https://linkedin.com/in/jimmy-nicholas/",
     label: "LinkedIn",
     icon: (
-      <AiFillLinkedin size={defaultSize} strokeWidth={defaultStrokeWidth} />
+      <AiFillLinkedin size={defaultSize} strokeWidth={defaultStrokeWidth} aria-label="LinkedIn" />
     ),
   },
   {
     href: "mailto:jimmynicholas@duck.com",
     label: "Email",
-    icon: <AiFillMail size={defaultSize} strokeWidth={defaultStrokeWidth} />,
+    icon: <AiFillMail size={defaultSize} strokeWidth={defaultStrokeWidth} aria-label="Email" />,
   },
   {
     href: "https://lashlash.bandcamp.com/",
     label: "Bandcamp",
-    icon: <SiBandcamp size={defaultSize} strokeWidth={defaultStrokeWidth} />,
+    icon: <SiBandcamp size={defaultSize} strokeWidth={defaultStrokeWidth} aria-label="Bandcamp" />,
   },
 ];
 
