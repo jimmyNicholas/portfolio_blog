@@ -18,14 +18,14 @@ const projects: Project[] = [
     description:
       "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
     tags: ["React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
-    link: "jimmynicholas.com",
+    link: "jimmynicholas.github.io/portfolio_blog",
   },
   {
     id: "tone-clock",
     title: "Tone Clock",
     description: "A clock that uses the time to play the circle of fifths.",
     tags: ["React", "TypeScript", "Next.js", "Tone JS"],
-    link: "jimmynicholas.github.io/tone-clock/",
+    link: "jimmynicholas.github.io/tone-clock",
   },
   {
     id: "impact-db",
