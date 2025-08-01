@@ -2,7 +2,7 @@ declare module 'jest-axe' {
   export function axe(
     container: Element | Document,
     options?: {
-      rules?: Record<string, any>
+      rules?: Record<string, unknown>
       runOnly?: {
         type: 'rule' | 'ruleId' | 'tag'
         values: string[]
