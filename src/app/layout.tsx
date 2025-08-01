@@ -4,11 +4,13 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import Layout from "./components/Layout";
 import { DynamicFavicon } from "./components/DynamicFavicon";
 
+const basePath = process.env.NODE_ENV === 'production' ? '/portfolio_blog' : '';
+
 export const metadata: Metadata = {
   title: "Jimmy Nicholas",
   description: "Personal portfolio of Jimmy Nicholas",
   icons: {
-    icon: "/favicon.svg",
+    icon: `${basePath}/favicon.svg`,
   },
 };
 
