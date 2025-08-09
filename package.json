@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "build:cpanel": "DEPLOY_TARGET=cpanel next build",
+    "build:github": "DEPLOY_TARGET=github next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

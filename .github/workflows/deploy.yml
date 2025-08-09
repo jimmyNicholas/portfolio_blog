@@ -35,8 +35,11 @@ jobs:
       - name: Run linting
         run: npm run lint
 
-      - name: Build application
-        run: npm run build
+      - name: Build application for GitHub Pages
+        run: npm run build:github
+        env:
+          NODE_ENV: production
+          DEPLOY_TARGET: github
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
