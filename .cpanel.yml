@@ -1,0 +1,11 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/jimmynic/public_html/
+    - export NODE_ENV=production
+    - export DEPLOY_TARGET=cpanel
+    - npm ci
+    - npm run build:cpanel
+    - /bin/rm -rf $DEPLOYPATH/*
+    - /bin/cp -R out/* $DEPLOYPATH/
+    - /bin/chmod -R 755 $DEPLOYPATH
