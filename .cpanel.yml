@@ -3,10 +3,13 @@ deployment:
   tasks:
     - export REPOPATH=/home/jimmynic/portfolio
     - export DEPLOYPATH=/home/jimmynic/public_html/
-    - export NODE_ENV=production
-    - export DEPLOY_TARGET=cpanel
-    - npm ci
-    - npm run build:cpanel
-    - /bin/rm -rf $DEPLOYPATH/*
-    - /bin/cp -R out/* $DEPLOYPATH/
-    - /bin/chmod -R 755 $DEPLOYPATH
+    - cd $REPOPATH
+    - echo "=== Node.js Detection ===" > /home/jimmynic/node_check.log
+    - which node >> /home/jimmynic/node_check.log 2>&1 || echo "node not in PATH" >> /home/jimmynic/node_check.log
+    - which npm >> /home/jimmynic/node_check.log 2>&1 || echo "npm not in PATH" >> /home/jimmynic/node_check.log
+    - echo "=== Checking common locations ===" >> /home/jimmynic/node_check.log
+    - ls -la /opt/cpanel/ea-nodejs*/bin/node 2>&1 >> /home/jimmynic/node_check.log
+    - ls -la /home/jimmynic/nodevenv/*/bin/node 2>&1 >> /home/jimmynic/node_check.log
+    - echo "=== Environment ===" >> /home/jimmynic/node_check.log
+    - env | grep -i node >> /home/jimmynic/node_check.log 2>&1
+    - echo "Check complete" >> /home/jimmynic/node_check.log
