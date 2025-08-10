@@ -1,6 +1,7 @@
 ---
 deployment:
   tasks:
+    - export REPOPATH=/home/jimmynic/portfolio
     - export DEPLOYPATH=/home/jimmynic/public_html/
     - export NODE_ENV=production
     - export DEPLOY_TARGET=cpanel
