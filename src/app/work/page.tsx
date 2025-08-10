@@ -13,6 +13,13 @@ interface Project {
 
 const projects: Project[] = [
   {
+    id: "git-gud-or-die",
+    title: "Git Gud or Die",
+    description: "A gamified todo app where missing deadlines kills your character and all current tasks are permanently deleted.",
+    tags: ["React Native", "React", "TypeScript", "AWS"],
+    link: "github.com/jimmyNicholas/git-gud-or-die",
+  },
+  {
     id: "portfolio-vaporwave",
     title: "Portfolio Site with Vaporwave Effects",
     description:
@@ -46,16 +53,9 @@ const projects: Project[] = [
     id: "vocab-finder",
     title: "Vocab Finder",
     description:
-      "A tool that helps ESL teachers quickly find information on lists of vocabulary words ",
+      "A tool that helps ESL teachers quickly find information on lists of vocabulary words.",
     tags: ["JavaScript", "CSS", "HTML", "Figma"],
     link: "vocabfinder.jimmynicholas.com",
-  },
-  {
-    id: "sunsets",
-    title: "Sunsets",
-    description: "A collection of hip hop beats based on sunsets.",
-    tags: ["Ableton", "cassettes", "sampling", "collaboration"],
-    link: "lashlash.bandcamp.com/album/sunsets",
   },
 ];
 
