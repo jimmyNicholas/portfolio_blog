@@ -25,7 +25,7 @@ const projects: Project[] = [
     description:
       "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
     tags: ["React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
-    link: "jimmynicholas.github.io/portfolio_blog",
+    link: "jimmynicholas.com",
   },
   {
     id: "tone-clock",
