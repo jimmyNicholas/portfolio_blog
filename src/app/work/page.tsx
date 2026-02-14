@@ -13,13 +13,6 @@ interface Project {
 
 const projects: Project[] = [
   {
-    id: "git-gud-or-die",
-    title: "Git Gud or Die",
-    description: "A gamified todo app where missing deadlines kills your character and all current tasks are permanently deleted.",
-    tags: ["React Native", "React", "TypeScript", "AWS"],
-    link: "github.com/jimmyNicholas/git-gud-or-die",
-  },
-  {
     id: "portfolio-vaporwave",
     title: "Portfolio Site with Vaporwave Effects",
     description:
