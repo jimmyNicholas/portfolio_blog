@@ -13,6 +13,14 @@ interface Project {
 
 const projects: Project[] = [
   {
+    id: "e-scooter-safety-course",
+    title: "E-Scooter Safety Course",
+    description:
+      "A plan for a digital safety course for e-scooter riders.",
+    tags: ["Education", "Digital Teaching", "Code"],
+    link: "jimmynicholas.com/work/e-scooter-safety-course",
+  },
+  {
     id: "portfolio-vaporwave",
     title: "Portfolio Site with Vaporwave Effects",
     description:
@@ -186,11 +194,10 @@ const WorkPage = () => {
           <button
             key={value}
             onClick={() => setCategory(value)}
-            // on hover isn't working for some reason
             className={`px-4 py-2 rounded-full text-sm font-mono border transition-colors ${
               category === value
-                ? "border-primary bg-primary/20 text-primary"
-                : "border-primary text-accent hover:bg-primary/10"
+                ? "border-primary bg-[color:var(--palette-primary)]/10 text-primary"
+                : "border-primary text-accent hover:bg-[color:var(--palette-primary)]/20"
             }`}
           >
             {label}
