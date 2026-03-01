@@ -2,12 +2,11 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-type Row = { label: string; content: React.ReactNode };
+type Row = { postLabel: string; postContent: React.ReactNode };
 type Section = {
   id: string;
-  num: string;
-  title: string;
-  rows: Row[];
+  postTitle: string;
+  postRows: Row[];
   callout?: React.ReactNode;
 };
 
@@ -57,92 +56,56 @@ export default function EditorialCoursePlanClient() {
     () => [
       {
         id: "context",
-        num: "1",
-        title: "Context",
-        rows: [
+        postTitle: "Context",
+        postRows: [
           {
-            label: "Situation",
-            content: (
-              <div className="space-y-2 text-sm leading-relaxed">
-                <p>In recent years, e-scooter use has become more widespread across Victoria. With large companies such as Lime and Neuron offering short term hire options, access to cheap, fast and environmentally friendly methods to get around has increased usage.</p>
-                <p>However, this comes at a cost of safety to the riders with most of the accidents involving young adults and children. In addition, poorly parked e-scooter can limit accessibility for wheelchairs and prams.</p>
-              </div>
+        postLabel: "Situation",
+        postContent: (
+        <div className="space-y-2 text-sm leading-relaxed">
+        <p>Most young e-scooter riders already know the rules. The problem is they don&apos;t always follow them. In Victoria, e-scooter Emergency Department presentations increased nearly fiftyfold between 2017/18 and 2022/23, with young adults aged 15–24 the most frequently injured (Berecki-Gisolf & Hayman, 2024). Beyond personal safety, poorly parked scooters regularly block access for wheelchair users, pram users, and the elderly.</p>
+        </div>
             ),
           },
           {
-            label: "The Issue",
-            content: (
-              <div className="space-y-2 text-sm leading-relaxed">
-                <p>The main issue to address is reducing the number of accidents involving e-scooters and promoting safe use.</p>
-                <p>The secondary issue to address is responsible parking and promoting community harmony. Poorly parked e-scooters can limit the accessibility for people in wheelchairs, with prams, and the elderly.</p>
-              </div>
-            ),
-          },
-          {
-            label: "Key Challenges",
-            content: (
-              <>
-                <ul className="list-disc list-inside">
-                  <li>Building learner motivation</li>
-                  <li>Understanding local laws</li>
-                  <li>Ensuring accessibility for all</li>
-                </ul>
-              </>
-            ),
-          },
-        ],
-        callout: (
-          <div className="text-accent text-sm leading-relaxed">
-          Possible callout
-          </div>
-        ),
+        postLabel: "Audience",
+        postContent: (
+        <div className="space-y-2 text-sm leading-relaxed">
+        <p>This course is designed for teenagers and young adults, on behalf of stakeholders such as VicRoads, TAC, and e-scooter operators. The challenge is designing for learners who are time-poor, socially motivated, and unlikely to engage with content from authority figures.</p>
+        </div>
+          ),
+        }
+      ],
       },
-      {
-        id: "people",
-        num: "2",
-        title: "People",
-        rows: [
-          {
-            label: "Learners",
-            content: (
-              <div className="space-y-2 text-sm leading-relaxed">
-                <p>Teenagers and adolescents who are most likely active and social with a good group of friends. They are time rich, but particular on how they use that time. They usually make good decisions, but sometimes take risks without considering the consequences.</p>
-                <p>They most likely already know the rules, but reviewing them and the impact they can have is useful. This means that tone, looks and feel are important.</p>
-              </div>
-            ),
-          },
-          {
-            label: "Stakeholders",
-            content: (
-              <div className="space-y-2 text-sm leading-relaxed">
-                <p>The variety of possible stakeholders means that this project is built to be easily customisable based on the organisation and their goals.</p>
-              <p>
-                <strong>Victoria Government (PSA):</strong> local councils, Transport Victoria,
-                state government, TAC, Victoria Walks
-              </p>
-              <p>
-                <strong>eScooter companies (in‑app):</strong> Lime, Neuron
-              </p>
-              <p>
-                <strong>Victoria Police (rehab / community):</strong> police diversion and
-                community engagement programs
-              </p>
-              <p>
-                <strong>Insurance (safety promotion):</strong> RACV and other insurers
-              </p>
-            </div>
-            ),
-          },
-        ],
-      },
+      
+{
+  id: "presentation",
+postTitle: "Presentation",
+postRows: [
+    {
+postLabel: "Accessibility ",
+postContent: (
+<div className="space-y-2 text-sm leading-relaxed">
+<p>Built to WCAG 2.1 AA standards (W3C, 2018) using Articulate Rise, the course will include high contrast visuals, scalable font (min 12px), descriptive alt-text for images and videos, and full keyboard navigability (CAST, 2024, Guidelines 1.1, 4.1).</p>
+</div>
+      ),
+    },
+    {
+postLabel: "Tone",
+postContent: (
+<div className="space-y-2 text-sm leading-relaxed">
+<p>The general tone will be “Chill Dad” to avoid being authoritative. “Hey I know you know, but here’s the reason”. This will build trust by honouring their intelligence while enhancing their understanding (CAST, 2024, Guideline 3.1). Research supports empathy-based messaging over fear-based approaches in road safety education for young people (Waring et al., 2024).</p>
+</div>
+      ),
+    }
+],
+},
       {
         id: "delivery",
-        num: "3",
-        title: "Delivery",
-        rows: [
+        postTitle: "Delivery",
+        postRows: [
           {
-            label: "Format",
-            content: (
+            postLabel: "Format",
+            postContent: (
               <span>
                 Micro-lessons (2–5 minutes) with scenario prompts and quick
                 checks. <Pills items={["Media", "Scenarios"]} />
@@ -150,8 +113,8 @@ export default function EditorialCoursePlanClient() {
             ),
           },
           {
-            label: "Platform",
-            content: (
+            postLabel: "Platform",
+            postContent: (
               <span>
                 Mobile web first; desktop compatible.{" "}
                 <Pills items={["Responsive", "Touch-friendly"]} />
@@ -159,8 +122,8 @@ export default function EditorialCoursePlanClient() {
             ),
           },
           {
-            label: "Completion",
-            content: (
+            postLabel: "Completion",
+            postContent: (
               <span>
                 Certificate-ready outcome, exportable proof.{" "}
                 <Pills items={["Assessment", "Verification"]} />
@@ -171,32 +134,31 @@ export default function EditorialCoursePlanClient() {
       },
       {
         id: "modules",
-        num: "4",
-        title: "Module plan",
-        rows: [
+        postTitle: "Module plan",
+        postRows: [
           {
-            label: "1. Setup",
-            content:
+            postLabel: "1. Setup",
+            postContent:
               "Helmet, brakes, stance, and a 30-second pre-ride check. What to do if something feels wrong.",
           },
           {
-            label: "2. Street reading",
-            content:
+            postLabel: "2. Street reading",
+            postContent:
               "Surface hazards, driveways, door zones, visibility, and predicting car behavior.",
           },
           {
-            label: "3. Intersections",
-            content:
+            postLabel: "3. Intersections",
+            postContent:
               "Right-of-way ambiguity, turning conflicts, and speed choices that keep options open.",
           },
           {
-            label: "4. Weather/night",
-            content:
+            postLabel: "4. Weather/night",
+            postContent:
               "Wet traction, lighting, and the “slower than you think” rule for stopping distance.",
           },
           {
-            label: "5. Local norms",
-            content:
+            postLabel: "5. Local norms",
+            postContent:
               "Sidewalk vs road decisions, shared paths, and courtesy behaviors that reduce conflict.",
           },
         ],
@@ -210,12 +172,11 @@ export default function EditorialCoursePlanClient() {
       },
       {
         id: "assessment",
-        num: "5",
-        title: "Assessment",
-        rows: [
+        postTitle: "Assessment",
+        postRows: [
           {
-            label: "Checks",
-            content: (
+            postLabel: "Checks",
+            postContent: (
               <span>
                 Low-stakes, frequent, and scenario-based.{" "}
                 <Pills items={["Multiple choice", "Image hotspots"]} />
@@ -223,13 +184,13 @@ export default function EditorialCoursePlanClient() {
             ),
           },
           {
-            label: "Passing",
-            content:
+            postLabel: "Passing",
+            postContent:
               "Clear threshold with review loops: if you miss, you see why and retry a parallel scenario.",
           },
           {
-            label: "Evidence",
-            content: (
+            postLabel: "Evidence",
+            postContent: (
               <span>
                 Completion record with timestamp and optional identity step.{" "}
                 <Pills items={["Certificate", "Audit trail"]} />
@@ -240,12 +201,11 @@ export default function EditorialCoursePlanClient() {
       },
       {
         id: "accessibility",
-        num: "6",
-        title: "Accessibility",
-        rows: [
+        postTitle: "Accessibility",
+        postRows: [
           {
-            label: "Standards",
-            content: (
+            postLabel: "Standards",
+            postContent: (
               <span>
                 Designed for readable contrast, keyboard navigation, and screen
                 reader landmarks. <Pills items={["WCAG", "Keyboard"]} />
@@ -253,35 +213,34 @@ export default function EditorialCoursePlanClient() {
             ),
           },
           {
-            label: "Media",
-            content:
+            postLabel: "Media",
+            postContent:
               "Captions for video, transcripts for audio, and alt text for diagrams/hazards.",
           },
           {
-            label: "Interaction",
-            content:
+            postLabel: "Interaction",
+            postContent:
               "No time pressure for essential tasks; avoid motion-only cues; focus states are visible.",
           },
         ],
       },
       {
         id: "build",
-        num: "7",
-        title: "Build notes",
-        rows: [
+        postTitle: "Build notes",
+        postRows: [
           {
-            label: "Content ops",
-            content:
+            postLabel: "Content ops",
+            postContent:
               "Write once, reuse often: scenarios as a library; easy to localize and adapt to city rules.",
           },
           {
-            label: "Analytics",
-            content:
+            postLabel: "Analytics",
+            postContent:
               "Track drop-off points and question misses to refine where riders struggle most.",
           },
           {
-            label: "Iteration",
-            content: (
+            postLabel: "Iteration",
+            postContent: (
               <span>
                 Start with MVP modules, then add higher fidelity visuals.{" "}
                 <Pills items={["MVP", "Iterate"]} />
@@ -334,14 +293,14 @@ export default function EditorialCoursePlanClient() {
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-max">
-            {SECTIONS.map((s) => (
+            {SECTIONS.map((s, i) => (
               <TocLink
                 key={s.id}
                 href={`#${s.id}`}
                 active={activeId === s.id}
               >
-                <span className="text-accent">{s.num}</span>{" "}
-                <span className="text-themed">{s.title}</span>
+                <span className="text-accent">{i + 1}</span>{" "}
+                <span className="text-themed">{s.postTitle}</span>
               </TocLink>
             ))}
           </div>
@@ -361,14 +320,14 @@ export default function EditorialCoursePlanClient() {
             Contents
           </div>
           <div className="space-y-2">
-            {SECTIONS.map((s) => (
+            {SECTIONS.map((s, i) => (
               <TocLink
                 key={s.id}
                 href={`#${s.id}`}
                 active={activeId === s.id}
               >
-                <span className="text-accent">{s.num}</span>{" "}
-                <span className="text-themed">{s.title}</span>
+                <span className="text-accent">{i + 1}</span>{" "}
+                <span className="text-themed">{s.postTitle}</span>
               </TocLink>
             ))}
           </div>
@@ -376,7 +335,7 @@ export default function EditorialCoursePlanClient() {
       </nav>
 
       <main className="mt-6 md:mt-0 space-y-8">
-        {SECTIONS.map((section) => (
+        {SECTIONS.map((section, index) => (
           <section
             key={section.id}
             id={section.id}
@@ -395,10 +354,10 @@ export default function EditorialCoursePlanClient() {
               <header className="flex items-start justify-between gap-6">
                 <div className="space-y-1">
                   <div className="font-mono text-accent text-sm">
-                    {section.num}
+                    {index + 1}
                   </div>
                   <h2 className="font-mono font-bold text-themed text-xl">
-                    {section.title}
+                    {section.postTitle}
                   </h2>
                 </div>
                 {section.callout ? (
@@ -409,16 +368,16 @@ export default function EditorialCoursePlanClient() {
               </header>
 
               <div className="space-y-4">
-                {section.rows.map((row) => (
+                {section.postRows.map((row) => (
                   <div
-                    key={row.label}
-                    className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-2 sm:gap-6"
+                    key={row.postLabel}
+                    className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-2 lg:gap-6"
                   >
-                    <div className="font-mono text-accent text-sm">
-                      {row.label}
+                    <div className="font-mono text-accent font-bold">
+                      {row.postLabel}
                     </div>
-                    <div className="text-accent text-sm leading-relaxed">
-                      {row.content}
+                    <div className="text-accent leading-relaxed mb-2">
+                      {row.postContent}
                     </div>
                   </div>
                 ))}
