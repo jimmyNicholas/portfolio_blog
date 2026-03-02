@@ -124,7 +124,7 @@ postRows: [
 postLabel: "Accessibility ",
 postContent: (
 <div className="space-y-2 text-sm leading-relaxed">
-<p>Built to WCAG 2.1 AA standards (W3C, 2018) using Articulate Rise, the course will include high contrast visuals, scalable font (min 12px), descriptive alt-text for images and videos, and full keyboard navigability (CAST, 2024, Guidelines 1.1, 4.1).</p>
+<p>Built to WCAG 2.1 AA standards (W3C, 2018) using Articulate Rise, the course will include high contrast visuals, scalable font (minimum 12px), descriptive alt-text for images and videos, and full keyboard navigability (CAST, 2024, Guidelines 1.1, 4.1).</p>
 </div>
       ),
     },
@@ -132,7 +132,7 @@ postContent: (
 postLabel: "Tone",
 postContent: (
 <div className="space-y-2 text-sm leading-relaxed">
-<p>The general tone will be “Chill Dad” to avoid being authoritative. “Hey I know you know, but here’s the reason”. This will build trust by honouring their intelligence while enhancing their understanding (CAST, 2024, Guideline 3.1). Research supports empathy-based messaging over fear-based approaches in road safety education for young people (Waring et al., 2024).</p>
+<p>The general tone will be “Chill Dad” to avoid being authoritative. “Hey, I know you know, but here’s the reason”. This will build trust by honouring their intelligence while enhancing their understanding (CAST, 2024, Guideline 3.1). Research supports empathy-based messaging over fear-based approaches in road safety education for young people (Waring et al., 2024).</p>
 </div>
       ),
     }
@@ -154,7 +154,7 @@ postContent: (
       postLabel: "Content",
       postContent: (
         <div className="space-y-2 text-sm leading-relaxed">
-          <p>Real-world resources including news articles, images, and video are archived locally to prevent deadlinking (CAST, 2024, Guideline 5.1). Local and authentic imagery is preferred to optimise relevance and authenticity for learners (CAST, 2024, Guideline 7.2). Owners will be consulted and credited.</p>
+          <p>Real-world resources including news articles, images, and video are archived locally to prevent dead links (CAST, 2024, Guideline 5.1). Local and authentic imagery is preferred to optimise relevance and authenticity for learners (CAST, 2024, Guideline 7.2). Owners will be consulted and credited.</p>
         </div>
       ),
     },
@@ -220,7 +220,7 @@ postContent: (
       postLabel: "Key Terms",
       postContent: (
         <div className="space-y-2 text-sm leading-relaxed">
-          <p>A simple matching activity clarifies language structures to reduce cognitive load. Especially for CALD learners (CAST, 2024, Guideline 2.1).</p>
+          <p>A simple matching activity clarifies language structures to reduce cognitive load, especially for CALD learners (CAST, 2024, Guideline 2.1).</p>
         </div>
       ),
     },
@@ -234,38 +234,41 @@ postContent: (
             familiar media formats, making stakes tangible before any rules are
             introduced (CAST, 2024, Guideline 2.5).
           </p>
-          <div className="mt-4 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto">
-            <div className="relative w-full pt-[177.78%] overflow-hidden border border-secondary">
-              <iframe
-                src="https://www.youtube.com/embed/uJwy0QhfBCw?start=0&end=15"
-                title="Guess What Happens Next (setup)"
-                className="absolute inset-0 w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
-          </div>
-          <p className="text-xs text-accent mt-2">
-            Nashville Bird Fail! (n.d.). [Video recording]. Retrieved March 2,
-            2026, from{" "}
-            <a
-              href="https://www.youtube.com/shorts/uJwy0QhfBCw"
-              className="underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              https://www.youtube.com/shorts/uJwy0QhfBCw
-            </a>
-            .
-          </p>
-          <p className="text-xs text-accent mt-1">
-            <a
-              href="#guess-activity"
-              className="underline text-accent hover:text-secondary font-mono"
-            >
-              Try the full activity with options and reveal ↓
-            </a>
-          </p>
+          <div className="mt-4">
+  <figure className="max-w-2xl mx-auto border border-secondary overflow-hidden">
+    <div className="relative w-full pt-[177.78%] overflow-hidden">
+      <iframe
+        src="https://www.youtube.com/embed/uJwy0QhfBCw?start=0&end=15"
+        title="Guess What Happens Next (setup)"
+        className="absolute inset-0 w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+      />
+    </div>
+
+    <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+      Nashville Bird Fail! (n.d.). [Video recording]. Retrieved March 2, 2026,
+      from{" "}
+      <a
+        href="https://www.youtube.com/shorts/uJwy0QhfBCw"
+        className="underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        https://www.youtube.com/shorts/uJwy0QhfBCw
+      </a>
+      .
+      <div className="mt-1">
+        <a
+          href="#guess-activity"
+          className="underline text-accent hover:text-secondary text-xs font-mono"
+        >
+          Try the full activity with options and reveal ↓
+        </a>
+      </div>
+    </figcaption>
+  </figure>
+</div>
         </div>
       ),
     },
@@ -273,7 +276,7 @@ postContent: (
       postLabel: "Situation Branching",
       postContent: (
         <div className="space-y-2 text-sm leading-relaxed">
-          <p>Branching scenarios adapt dynamically to learner responses, so those who demonstrate existing knowledge move forward while those who need support receive it without being made aware of the adjustment which reduces the risk of confidence loss (CAST, 2024, Guideline 8.2; Merrill, 2002).</p>
+          <p>Branching scenarios adapt dynamically to learner responses, so those who demonstrate existing knowledge move forward while those who need support receive it without being made aware of the adjustment, which reduces the risk of confidence loss (CAST, 2024, Guideline 8.2; Merrill, 2002).</p>
         </div>
       ),
     },
@@ -292,10 +295,22 @@ postContent: (
               className="max-w-2xl mx-auto border border-secondary overflow-hidden"
               title='Figure 4. Draft screen designs for the "You Can&apos;t Park There!" game. Generated using ChatGPT (2026).'
             >
-              <Image src={figure4} alt='Draft screen designs for the "You Can&apos;t Park There!" game.' className="w-full h-auto" />
+              <Image
+                src={figure4}
+                alt='Draft screen designs for the "You Can&apos;t Park There!" game.'
+                className="w-full h-auto"
+              />
               <figcaption className="px-3 py-2 text-[0.75rem] text-accent leading-snug">
                 Figure 4. Draft screen designs for the &quot;You Can&apos;t
                 Park There!&quot; game. Generated using ChatGPT (2026).
+                <div className="mt-1">
+                  <a
+                    href="#figure-4"
+                    className="underline text-accent hover:text-secondary"
+                  >
+                    See full-size Figure 4 ↓
+                  </a>
+                </div>
               </figcaption>
             </figure>
           </div>
@@ -560,7 +575,12 @@ postContent: (
       </section>
 
       <section id="guess-activity" className="scroll-mt-28">
-        <div className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-4">
+        <div className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-4"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+        }}
+        >
           <h2 className="font-mono font-bold text-themed text-xl">
             Figure 3. Guess What Happens Next
           </h2>
@@ -621,7 +641,7 @@ postContent: (
               </div>
             </div>
           </div>
-          <div className="text-right mt-2">
+          <div className="text-left mt-2">
             <a
               href="#practice"
               className="underline text-accent hover:text-secondary text-xs font-mono"
@@ -631,6 +651,38 @@ postContent: (
           </div>
         </div>
       </section>
+
+      <section id="figure-4" className="scroll-mt-28">
+        <div
+          className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-4"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+          }}
+        >
+          <h2 className="font-mono font-bold text-themed text-xl">Figure 4</h2>
+          <figure className="w-full border border-secondary overflow-hidden">
+            <Image
+              src={figure4}
+              alt='Draft screen designs for the "You Can&apos;t Park There!" game.'
+              className="w-full h-auto"
+            />
+            <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+              Figure 4. Draft screen designs for the &quot;You Can&apos;t Park
+              There!&quot; game. Generated using ChatGPT (2026).
+              <div className="mt-1">
+                <a
+                  href="#practice"
+                  className="underline text-accent hover:text-secondary text-xs font-mono"
+                >
+                  Back to Practice ↑
+                </a>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    
     </div>
   );
 }

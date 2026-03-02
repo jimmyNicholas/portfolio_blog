@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function EScooterSafetyCoursePage() {
   return (
-    <div className="max-w-6xl mx-auto px-8 space-y-8">
+    <div className="max-w-8xl mx-auto px-8 space-y-8">
       <header
         className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-5"
         style={{
