@@ -13,18 +13,26 @@ interface Project {
 
 const projects: Project[] = [
   {
+    id: "e-scooter-safety-course",
+    title: "E-Scooter Safety Course",
+    description:
+      "A plan for a digital safety course for e-scooter riders.",
+    tags: ["Education", "Digital Teaching", "Code"],
+    link: "jimmynicholas.com/work/e-scooter-safety-course",
+  },
+  {
     id: "portfolio-vaporwave",
     title: "Portfolio Site with Vaporwave Effects",
     description:
       "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
-    tags: ["React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
+    tags: ["Code", "React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
     link: "jimmynicholas.com",
   },
   {
     id: "tone-clock",
     title: "Tone Clock",
     description: "A clock that uses the time to play the circle of fifths.",
-    tags: ["React", "TypeScript", "Next.js", "Tone JS"],
+    tags: ["Code", "Music", "React", "TypeScript", "Next.js", "Tone JS"],
     link: "jimmynicholas.github.io/tone-clock",
   },
   {
@@ -32,14 +40,14 @@ const projects: Project[] = [
     title: "Impact DB",
     description:
       "A full-stack database that extends Impact English College's paper-based system.",
-    tags: ["TypeScript", "React", "Django"],
+    tags: ["Code", "Education", "TypeScript", "React", "Django"],
     link: "github.com/jimmyNicholas/impact_db",
   },
   {
     id: "annoying-piano",
     title: "The Annoying Piano",
     description: "A piano that evolves as you play.",
-    tags: ["React", "TypeScript", "Next.js", "Tone JS"],
+    tags: ["Code", "Music", "React", "TypeScript", "Next.js", "Tone JS"],
     link: "annoying-piano.vercel.app",
   },
   {
@@ -47,7 +55,7 @@ const projects: Project[] = [
     title: "Vocab Finder",
     description:
       "A tool that helps ESL teachers quickly find information on lists of vocabulary words.",
-    tags: ["JavaScript", "CSS", "HTML", "Figma"],
+    tags: ["Code", "Education", "JavaScript", "CSS", "HTML", "Figma"],
     link: "vocabfinder.jimmynicholas.com",
   },
 ];
@@ -72,8 +80,21 @@ const techAbbreviations: Record<string, string> = {
   "Terminal UI": "Term",
 };
 
+type CategoryFilter = "all" | "code" | "music" | "education";
+const CATEGORIES: { value: CategoryFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "code", label: "Code" },
+  { value: "music", label: "Music" },
+  { value: "education", label: "Education" },
+];
+
 const WorkPage = () => {
   const { isBusinessMode } = useThemeContext();
+  const [category, setCategory] = useState<CategoryFilter>("all");
+  const filteredProjects = projects.filter((p) => {
+    if (category === "all") return true;
+    return p.tags.some((t) => t.toLowerCase() === category);
+  });
 
   const ProjectCard = ({ project }: { project: Project }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -155,7 +176,7 @@ const WorkPage = () => {
           "color-mix(in srgb, var(--palette-background) 30%, black 70%)",
       }}
     >
-      {projects.map((project) => (
+      {filteredProjects.map((project) => (
         <ProjectCard key={project.id} project={project} />
       ))}
     </div>
@@ -168,6 +189,21 @@ const WorkPage = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
+      <div className="flex flex-wrap gap-3 mb-6 w-full justify-center">
+        {CATEGORIES.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setCategory(value)}
+            className={`px-4 py-2 rounded-full text-sm font-mono border transition-colors ${
+              category === value
+                ? "border-primary bg-[color:var(--palette-primary)]/10 text-primary"
+                : "border-primary text-accent hover:bg-[color:var(--palette-primary)]/20"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <ProjectGrid />
     </motion.div>
   );
