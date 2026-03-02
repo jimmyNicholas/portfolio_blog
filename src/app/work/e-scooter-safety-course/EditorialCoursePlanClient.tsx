@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import figure1 from "../images/figure1.png";
 import figure2 from "../images/Figure2.png";
+import figure4 from "../images/Figure4.png";
 
 type Row = { postLabel: string; postContent: React.ReactNode };
 type Section = {
@@ -280,7 +281,24 @@ postContent: (
       postLabel: "Game",
       postContent: (
         <div className="space-y-2 text-sm leading-relaxed">
-          <p>&quot;You Can&apos;t Park There!&quot; is a low-stakes consolidation activity that reinforces responsible parking behaviour. Gamified approaches have demonstrated effectiveness in improving motivation and knowledge retention (Pham et al., 2025).</p>
+          <p>
+            &quot;You Can&apos;t Park There!&quot; is a low-stakes
+            consolidation activity that reinforces responsible parking
+            behaviour. Gamified approaches have demonstrated effectiveness in
+            improving motivation and knowledge retention (Pham et al., 2025).
+          </p>
+          <div className="mt-4">
+            <figure
+              className="max-w-2xl mx-auto border border-secondary overflow-hidden"
+              title='Figure 4. Draft screen designs for the "You Can&apos;t Park There!" game. Generated using ChatGPT (2026).'
+            >
+              <Image src={figure4} alt='Draft screen designs for the "You Can&apos;t Park There!" game.' className="w-full h-auto" />
+              <figcaption className="px-3 py-2 text-[0.75rem] text-accent leading-snug">
+                Figure 4. Draft screen designs for the &quot;You Can&apos;t
+                Park There!&quot; game. Generated using ChatGPT (2026).
+              </figcaption>
+            </figure>
+          </div>
         </div>
       ),
     },
@@ -542,12 +560,12 @@ postContent: (
       </section>
 
       <section id="guess-activity" className="scroll-mt-28">
-        <div className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-4 bg-white">
+        <div className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-4">
           <h2 className="font-mono font-bold text-themed text-xl">
             Figure 3. Guess What Happens Next
           </h2>
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start">
-            <div className="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto md:mx-0">
+          <div className="grid gap-4 sm:grid-rows-3 md:grid-rows-1 md:grid-cols-[30%_auto_30%] items-start bg-white p-4">
+            <div className="w-full mx-auto md:mx-0">
               <div className="relative w-full pt-[177.78%] overflow-hidden border border-secondary">
                 <iframe
                   src="https://www.youtube.com/embed/uJwy0QhfBCw?start=0&end=15"
@@ -560,7 +578,7 @@ postContent: (
             </div>
 
             <div className="text-sm text-accent font-mono space-y-3">
-              <div className="uppercase tracking-wide text-xs text-accent/80">
+              <div className="uppercase tracking-wide text-xs text-themed">
                 What happens next?
               </div>
               <div className="space-y-2">
@@ -591,7 +609,7 @@ postContent: (
               </div>
             </div>
 
-            <div className="max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg mx-auto md:mx-0">
+            <div className="w-full mx-auto md:mx-0">
               <div className="relative w-full pt-[177.78%] overflow-hidden border border-secondary">
                 <iframe
                   src="https://www.youtube.com/embed/uJwy0QhfBCw"
@@ -602,6 +620,14 @@ postContent: (
                 />
               </div>
             </div>
+          </div>
+          <div className="text-right mt-2">
+            <a
+              href="#practice"
+              className="underline text-accent hover:text-secondary text-xs font-mono"
+            >
+              Back to Practice ↑
+            </a>
           </div>
         </div>
       </section>
