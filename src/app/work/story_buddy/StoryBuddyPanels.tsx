@@ -237,3 +237,95 @@ export function StoryBuddyConnecting() {
   );
 }
 
+type WelcomeOverlayProps = {
+  onStart: () => void;
+};
+
+export function WelcomeOverlay({ onStart }: WelcomeOverlayProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-[1fr_1fr_auto] gap-3 min-h-[500px]">
+        <div
+          className="h-full rounded-3xl border-[3px] border-primary px-5 py-4 flex items-start"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 94%, var(--palette-secondary) 6%)",
+          }}
+        >
+          <div className="space-y-2">
+            <h2 className="font-mono font-bold text-themed text-lg">Overview</h2>
+            <p className="text-sm text-secondary leading-relaxed max-w-md">
+              Story Buddy helps you co‑write interactive stories. You choose what
+              happens next; the bot keeps track of the world, tone, and
+              characters.
+            </p>
+          </div>
+        </div>
+        <div
+          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+          }}
+        >
+          <div className="space-y-2">
+            <h2 className="font-mono font-bold text-themed text-lg">
+              Example 1
+            </h2>
+            <p className="text-sm text-secondary leading-relaxed max-w-md">
+              “Start a fantasy adventure where I&apos;m a reluctant hero who just
+              found a mysterious key in an old library.”
+            </p>
+          </div>
+        </div>
+        <div
+          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+          }}
+        >
+          <div className="space-y-2">
+            <h2 className="font-mono font-bold text-themed text-lg">
+              Questions Bot
+            </h2>
+            <p className="text-sm text-secondary leading-relaxed max-w-md">
+              Ask for recaps, pacing changes, or world details. Try: “Summarize
+              what&apos;s happened so far” or “Slow down and add more
+              atmosphere.”
+            </p>
+          </div>
+        </div>
+        <div
+          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+          }}
+        >
+          <div className="space-y-2">
+            <h2 className="font-mono font-bold text-themed text-lg">
+              Example 2
+            </h2>
+            <p className="text-sm text-secondary leading-relaxed max-w-md">
+              “Turn this into a cozy mystery in a seaside town, and give me three
+              risky options for what I could do next.”
+            </p>
+          </div>
+        </div>
+      <button
+        type="button"
+        onClick={onStart}
+        className="md:col-span-2 w-full rounded-3xl border-2 px-6 py-3 font-mono text-base text-themed transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, #4b9b6a 22%, var(--palette-background) 78%)",
+          borderColor:
+            "color-mix(in srgb, #4b9b6a 65%, var(--palette-primary) 35%)",
+        }}
+      >
+        Start
+      </button>
+    </div>
+  );
+}
+

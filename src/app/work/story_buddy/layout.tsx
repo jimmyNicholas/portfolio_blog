@@ -10,10 +10,10 @@ export default function StoryBuddyLayout({ children }: { children: ReactNode }) 
   } as CSSProperties;
 
   return (
-    <div className="max-w-8xl mx-auto px-8 py-8" style={storyBuddyThemeVars}>
-      <div className="rounded-[40px] bg-themed ring-1 ring-black/5 p-4 sm:p-6">
+    <div className="max-w-8xl mx-auto px-6 py-4" style={storyBuddyThemeVars}>
+      <div className="rounded-[40px] bg-themed ring-1 ring-black/5 p-3 sm:p-4">
         <main
-          className="rounded-[32px] bg-white ring-1 ring-black/10 shadow-sm p-4 sm:p-6 space-y-8"
+          className="rounded-[32px] bg-white ring-1 ring-black/10 shadow-sm p-4 sm:p-5 space-y-4"
           role="main"
           aria-label="Story Buddy interactive workspace"
         >

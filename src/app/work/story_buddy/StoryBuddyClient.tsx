@@ -12,6 +12,7 @@ import {
   OptionsPanel,
   StoryBuddyConnecting,
   StorySoFarPanel,
+  WelcomeOverlay,
 } from "./StoryBuddyPanels";
 
 const VOICEFLOW_SCRIPT_URL =
@@ -29,6 +30,7 @@ export default function StoryBuddyClient() {
   const [finalTitleState, setFinalTitleState] = useState("");
   const [finalStoryState, setFinalStoryState] = useState("");
   const [isWaitingForPayload, setIsWaitingForPayload] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const targetRef = useRef<HTMLDivElement>(null);
   const customInputRef = useRef<HTMLInputElement>(null);
@@ -126,8 +128,16 @@ export default function StoryBuddyClient() {
       />
       {!hasInitialContent ? (
         <StoryBuddyConnecting />
+      ) : showWelcome ? (
+        <div className="min-h-[420px]">
+          <WelcomeOverlay
+            onStart={() => {
+              setShowWelcome(false);
+            }}
+          />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 min-h-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 min-h-[420px]">
           {hasFinalStory ? (
             <FinalStoryPanel finalTitle={finalTitle} finalStory={finalStory} />
           ) : (
