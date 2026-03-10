@@ -2,11 +2,11 @@ import type { CSSProperties, ReactNode } from "react";
 
 export default function StoryBuddyLayout({ children }: { children: ReactNode }) {
   const storyBuddyThemeVars = {
-    "--palette-background": "#F8FAFC", // slate-50 (clean canvas)
-    "--palette-text": "#0B1220", // near-slate-950 (strong contrast)
-    "--palette-primary": "#1E40AF", // blue-800 (accessible focus/CTA)
-    "--palette-secondary": "#94A3B8", // slate-400 (borders/dividers)
-    "--palette-accent": "#334155", // slate-700 (secondary text)
+"--palette-background": "#0F1117",  // near-black with blue undertone
+"--palette-text": "#E8E6F0",        // soft lavender-white
+"--palette-primary": "#A78BFA",     // violet-400 (glows on dark)
+"--palette-secondary": "#6B7280",   // muted mid-gray
+"--palette-accent": "#F59E0B",      // amber — like candlelight
   } as CSSProperties;
 
   return (

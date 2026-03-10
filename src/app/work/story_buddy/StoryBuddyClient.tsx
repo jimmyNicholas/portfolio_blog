@@ -389,7 +389,7 @@ export default function StoryBuddyClient() {
                 {finalTitle}
               </h3>
             )}
-            <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto whitespace-pre-line font-mono">
+            <div className="text-themed text-sm leading-relaxed flex-1 overflow-y-auto whitespace-pre-line font-mono">
               {finalStory || "(No final story provided.)"}
             </div>
           </section>
@@ -407,7 +407,12 @@ export default function StoryBuddyClient() {
               <h2 className="font-mono font-bold text-themed text-lg mb-3">
                 Story so far
               </h2>
-              <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto">
+              <div
+                className="text-themed text-base leading-relaxed flex-1 overflow-y-auto"
+                role="log"
+                aria-live="polite"
+                aria-relevant="additions text"
+              >
                 {storySoFar ? (
                   <ul className="space-y-3 pl-5 list-disc marker:text-primary">
                     {parseStoryLines(storySoFar).map((paragraph, i) => (
@@ -415,7 +420,7 @@ export default function StoryBuddyClient() {
                     ))}
                   </ul>
                 ) : (
-                  <span className="text-accent/80">
+                  <span className="text-secondary/80">
                     Your story will go here...
                   </span>
                 )}
@@ -426,7 +431,7 @@ export default function StoryBuddyClient() {
             <div className="flex flex-col gap-4 min-h-[500px]">
               {(messageToPlayer || hasPlaceholderIssue) && (
                 <section
-                  className="border-2 border-secondary rounded-3xl p-4"
+                  className="border-2 border-secondary rounded-3xl p-5"
                   aria-label="Story Buddy message"
                   style={{
                     backgroundColor:
@@ -434,7 +439,7 @@ export default function StoryBuddyClient() {
                   }}
                 >
                   {hasPlaceholderIssue && (
-                    <p className="mb-2 text-xs font-mono text-accent">
+                    <p className="mb-2 text-xs font-mono text-secondary">
                       Voiceflow is sending template tokens (e.g.{" "}
                       <code className="opacity-90">
                         {"{message_to_player}"}
@@ -444,7 +449,7 @@ export default function StoryBuddyClient() {
                       payload contains real text.
                     </p>
                   )}
-                  <p className="text-accent text-sm leading-relaxed font-mono whitespace-pre-line">
+                  <p className="text-themed text-base leading-relaxed whitespace-pre-line">
                     {messageToPlayer ||
                       (hasPlaceholderIssue
                         ? "(message_to_player not substituted — fix in Voiceflow)"
@@ -454,7 +459,7 @@ export default function StoryBuddyClient() {
               )}
 
               <section
-                className="relative border-2 border-secondary rounded-3xl p-4 flex flex-col gap-3 flex-1"
+                className="relative border-2 border-secondary rounded-3xl p-4 flex flex-col gap-3 flex-1 min-h-0"
                 aria-label="Choose what happens next"
                 aria-busy={isWaitingForPayload ? "true" : "false"}
                 style={{
@@ -467,7 +472,7 @@ export default function StoryBuddyClient() {
                     Options
                   </h2>
                   {choicesList.length === 0 && !allowCustomInput && (
-                    <span className="text-xs text-accent">
+                    <span className="text-xs text-secondary">
                       Waiting for the next step…
                     </span>
                   )}
@@ -481,17 +486,17 @@ export default function StoryBuddyClient() {
                   >
                     <div className="flex flex-col items-center gap-3 px-5 py-4 border-2 border-secondary rounded-2xl bg-[color:var(--palette-background)]">
                       <span
-                        className="inline-block h-8 w-8 rounded-full border-4 border-accent/40 border-t-primary animate-spin"
+                      className="inline-block h-8 w-8 rounded-full border-4 border-accent/40 border-t-primary animate-spin motion-reduce:animate-none"
                         aria-hidden="true"
                       />
-                      <div className="text-accent text-sm font-mono">
+                      <div className="text-secondary text-sm font-mono">
                         Thinking about your story…
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 flex-1 min-h-0 auto-rows-fr">
                   {[0, 1, 2].map((i) => {
                     const choice = choicesList[i] ?? "";
                     const hasChoice = choice.length > 0;
@@ -500,7 +505,7 @@ export default function StoryBuddyClient() {
                         key={`choice-${i}-${choice.slice(0, 48)}`}
                         type="button"
                         disabled={!hasChoice || isWaitingForPayload}
-                        className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-themed text-sm leading-snug font-mono transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 hover:border-primary active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+                        className="h-full w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-themed text-base leading-relaxed font-mono transition-all duration-200 motion-reduce:transition-none enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 hover:border-primary active:translate-y-0 active:scale-[0.99] motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                         style={{
                           backgroundColor:
                             "color-mix(in srgb, var(--palette-background) 90%, var(--palette-secondary) 10%)",
@@ -518,7 +523,7 @@ export default function StoryBuddyClient() {
                 </div>
 
                 {allowCustomInput ? (
-                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1 shrink-0">
                     <label className="sr-only" htmlFor="story-buddy-custom-input">
                       Or type your own action
                     </label>
@@ -532,13 +537,14 @@ export default function StoryBuddyClient() {
                       }
                       disabled={isWaitingForPayload}
                       placeholder="Or type your own action..."
-                      className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-themed text-sm font-mono bg-transparent placeholder:text-accent/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+                      className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-themed text-base font-mono bg-transparent placeholder:text-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
                     />
                     <button
                       type="button"
                       onClick={handleCustomSubmit}
                       disabled={isWaitingForPayload || !customInputValue.trim()}
-                      className="sm:w-32 px-4 py-2 border-2 border-primary rounded-2xl text-themed text-sm font-mono font-medium transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+                      aria-label="Submit your story action"
+                      className="sm:w-32 px-4 py-2 border-2 border-primary rounded-2xl text-secondary text-base font-mono font-medium transition-all duration-200 motion-reduce:transition-none enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 active:translate-y-0 active:scale-[0.99] motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                     >
                       Submit
                     </button>
