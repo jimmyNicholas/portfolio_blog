@@ -371,13 +371,14 @@ export default function StoryBuddyClient() {
         strategy="lazyOnload"
         onLoad={() => setScriptLoaded(true)}
       />
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 min-h-[500px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 min-h-[500px]">
         {hasFinalStory ? (
-          <div
-            className="lg:col-span-2 border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[500px]"
+          <section
+            className="lg:col-span-2 border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[320px]"
+            aria-label="Final story"
             style={{
               backgroundColor:
-                "color-mix(in srgb, var(--palette-background) 90%, var(--palette-secondary) 10%)",
+                "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
             }}
           >
             <h2 className="font-mono font-bold text-themed text-lg mb-3">
@@ -391,14 +392,16 @@ export default function StoryBuddyClient() {
             <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto whitespace-pre-line font-mono">
               {finalStory || "(No final story provided.)"}
             </div>
-          </div>
+          </section>
         ) : (
           <>
-            <div
-              className="border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[500px]"
+            {/* Left: Story (primary) */}
+            <section
+              className="border-[3px] border-primary rounded-3xl p-6 flex flex-col min-h-[500px]"
+              aria-label="Story so far"
               style={{
                 backgroundColor:
-                  "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+                  "color-mix(in srgb, var(--palette-background) 94%, var(--palette-secondary) 6%)",
               }}
             >
               <h2 className="font-mono font-bold text-themed text-lg mb-3">
@@ -412,132 +415,142 @@ export default function StoryBuddyClient() {
                     ))}
                   </ul>
                 ) : (
-                  <span className="opacity-70">Your story will go here...</span>
+                  <span className="text-accent/80">
+                    Your story will go here...
+                  </span>
                 )}
               </div>
-            </div>
+            </section>
 
+            {/* Right: Message + options */}
             <div className="flex flex-col gap-4 min-h-[500px]">
-              <div
-                className="flex items-center gap-3 px-4 py-2 border-2 border-secondary rounded-2xl shrink-0"
-                style={{
-                  backgroundColor:
-                    "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
-                }}
-              >
-                <span className="font-mono text-accent text-sm">Options</span>
-              </div>
-
-              {hasPlaceholderIssue && (
-                <div
-                  className="border-2 border-amber-600/80 rounded-2xl p-3 text-amber-200 text-xs font-mono bg-amber-950/40"
-                  role="status"
-                >
-                  Voiceflow is sending template tokens (e.g.{" "}
-                  <code className="opacity-90">{"{message_to_player}"}</code>)
-                  instead of real text. Wire the same way you do for{" "}
-                  <code className="opacity-90">story_so_far</code> so the trace
-                  payload contains actual strings, not placeholders.
-                </div>
-              )}
-
               {(messageToPlayer || hasPlaceholderIssue) && (
-                <div
-                  className="flex-1 min-h-[120px] border-2 border-secondary rounded-3xl p-4 overflow-y-auto"
+                <section
+                  className="border-2 border-secondary rounded-3xl p-4"
+                  aria-label="Story Buddy message"
                   style={{
                     backgroundColor:
-                      "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+                      "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
                   }}
                 >
+                  {hasPlaceholderIssue && (
+                    <p className="mb-2 text-xs font-mono text-accent">
+                      Voiceflow is sending template tokens (e.g.{" "}
+                      <code className="opacity-90">
+                        {"{message_to_player}"}
+                      </code>
+                      ). Wire it the same way as{" "}
+                      <code className="opacity-90">story_so_far</code> so the
+                      payload contains real text.
+                    </p>
+                  )}
                   <p className="text-accent text-sm leading-relaxed font-mono whitespace-pre-line">
                     {messageToPlayer ||
                       (hasPlaceholderIssue
                         ? "(message_to_player not substituted — fix in Voiceflow)"
                         : "")}
                   </p>
-                </div>
+                </section>
               )}
 
-              <div
-                className="relative grid grid-cols-2 gap-3 shrink-0 p-4 border-2 border-secondary rounded-3xl"
+              <section
+                className="relative border-2 border-secondary rounded-3xl p-4 flex flex-col gap-3 flex-1"
+                aria-label="Choose what happens next"
+                aria-busy={isWaitingForPayload ? "true" : "false"}
                 style={{
                   backgroundColor:
-                    "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+                    "color-mix(in srgb, var(--palette-background) 94%, var(--palette-secondary) 6%)",
                 }}
-                aria-busy={isWaitingForPayload ? "true" : "false"}
               >
+                {/* <header className="flex items-center justify-between gap-3 mb-1">
+                  <h2 className="font-mono text-themed text-sm font-semibold">
+                    Options
+                  </h2>
+                  {choicesList.length === 0 && !allowCustomInput && (
+                    <span className="text-xs text-accent">
+                      Waiting for the next step…
+                    </span>
+                  )}
+                </header> */}
+
                 {isWaitingForPayload && (
                   <div
-                    className="absolute inset-0 z-10 rounded-3xl bg-[color:var(--palette-background)]/70 backdrop-blur-[1px] flex items-center justify-center"
+                    className="absolute inset-0 z-10 rounded-3xl bg-[color:var(--palette-background)]/80 backdrop-blur-[1px] flex items-center justify-center"
                     role="status"
                     aria-live="polite"
                   >
-                    <div className="flex flex-col items-center gap-3 px-5 py-4 border-2 border-secondary rounded-2xl bg-[color:var(--palette-background)]/90">
+                    <div className="flex flex-col items-center gap-3 px-5 py-4 border-2 border-secondary rounded-2xl bg-[color:var(--palette-background)]">
                       <span
-                        className="inline-block h-8 w-8 rounded-full border-4 border-accent/30 border-t-primary animate-spin"
+                        className="inline-block h-8 w-8 rounded-full border-4 border-accent/40 border-t-primary animate-spin"
                         aria-hidden="true"
                       />
                       <div className="text-accent text-sm font-mono">
-                        Thinking…
+                        Thinking about your story…
                       </div>
                     </div>
                   </div>
                 )}
-                {[0, 1, 2].map((i) => {
-                  const choice = choicesList[i] ?? "";
-                  const hasChoice = choice.length > 0;
-                  return (
-                    <button
-                      key={`choice-${i}-${choice.slice(0, 48)}`}
-                      type="button"
-                      disabled={!hasChoice || isWaitingForPayload}
-                      className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-accent text-sm leading-snug font-mono transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/25 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5 hover:border-primary active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
-                      style={{
-                        backgroundColor:
-                          "color-mix(in srgb, var(--palette-background) 85%, var(--palette-secondary) 15%)",
-                      }}
-                      onClick={() =>
-                        hasChoice &&
-                        !isWaitingForPayload &&
-                        handleChoiceClick(i, choice)
-                      }
-                    >
-                      {hasChoice ? choice : "—"}
-                    </button>
-                  );
-                })}
+
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-3">
+                  {[0, 1, 2].map((i) => {
+                    const choice = choicesList[i] ?? "";
+                    const hasChoice = choice.length > 0;
+                    return (
+                      <button
+                        key={`choice-${i}-${choice.slice(0, 48)}`}
+                        type="button"
+                        disabled={!hasChoice || isWaitingForPayload}
+                        className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-themed text-sm leading-snug font-mono transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 hover:border-primary active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+                        style={{
+                          backgroundColor:
+                            "color-mix(in srgb, var(--palette-background) 90%, var(--palette-secondary) 10%)",
+                        }}
+                        onClick={() =>
+                          hasChoice &&
+                          !isWaitingForPayload &&
+                          handleChoiceClick(i, choice)
+                        }
+                      >
+                        {hasChoice ? choice : "—"}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {allowCustomInput ? (
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                    <label className="sr-only" htmlFor="story-buddy-custom-input">
+                      Or type your own action
+                    </label>
                     <input
+                      id="story-buddy-custom-input"
                       type="text"
                       value={customInputValue}
                       onChange={(e) => setCustomInputValue(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleCustomSubmit()
+                      }
                       disabled={isWaitingForPayload}
                       placeholder="Or type your own action..."
-                      className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-accent text-sm font-mono bg-transparent placeholder:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+                      className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-themed text-sm font-mono bg-transparent placeholder:text-accent/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
                     />
                     <button
                       type="button"
                       onClick={handleCustomSubmit}
-                      disabled={isWaitingForPayload}
-                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl text-accent text-sm font-mono font-medium transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/25 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+                      disabled={isWaitingForPayload || !customInputValue.trim()}
+                      className="sm:w-32 px-4 py-2 border-2 border-primary rounded-2xl text-themed text-sm font-mono font-medium transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                     >
                       Submit
                     </button>
                   </div>
-                ) : (
-                  <div className="flex items-center justify-center px-4 py-3 border-2 border-secondary rounded-2xl text-accent/50 text-sm font-mono">
-                    —
-                  </div>
-                )}
-              </div>
+                ) : null}
+              </section>
             </div>
           </>
         )}
       </div>
 
-      <div
+      {/* <div
         className="mt-6 border-2 border-secondary rounded-3xl p-4"
         style={{
           backgroundColor:
@@ -558,15 +571,16 @@ export default function StoryBuddyClient() {
         <pre className="text-accent text-xs font-mono overflow-x-auto max-h-48 overflow-y-auto whitespace-pre-wrap break-words">
           {payload != null ? JSON.stringify(payload, null, 2) : "—"}
         </pre>
-      </div>
+      </div> */}
 
       {/* Voice Flow embed below debug – expands with content, scrolls when tall */}
+      <div className="hidden m-0 p-0">
       <div
-        className="mt-6 border-2 border-secondary rounded-3xl overflow-hidden flex flex-col"
-        style={{
-          backgroundColor:
-            "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
-        }}
+        // className="mt-6 border-2 border-secondary rounded-3xl overflow-hidden flex flex-col"
+        // style={{
+        //   backgroundColor:
+        //     "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+        // }}
       >
         <h3 className="font-mono font-bold text-themed text-sm px-4 pt-3 pb-2 shrink-0">
           AI chat
@@ -582,7 +596,7 @@ export default function StoryBuddyClient() {
           />
         </div>
       </div>
-
+        </div>
       {/* Final story is shown in place of the main UI when available */}
     </>
   );
