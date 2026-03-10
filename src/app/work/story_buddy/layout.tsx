@@ -11,7 +11,7 @@ export default function StoryBuddyLayout({ children }: { children: ReactNode }) 
 
   return (
     <div className="max-w-8xl mx-auto px-8 py-8" style={storyBuddyThemeVars}>
-      <div className="rounded-[40px] bg-neutral-100/90 ring-1 ring-black/5 p-4 sm:p-6">
+      <div className="rounded-[40px] bg-themed ring-1 ring-black/5 p-4 sm:p-6">
         <main
           className="rounded-[32px] bg-white ring-1 ring-black/10 shadow-sm p-4 sm:p-6 space-y-8"
           role="main"

@@ -104,6 +104,7 @@ export default function StoryBuddyClient() {
   const [isWaitingForPayload, setIsWaitingForPayload] = useState(false);
 
   const targetRef = useRef<HTMLDivElement>(null);
+  const customInputRef = useRef<HTMLInputElement>(null);
   const setPayloadRef = useRef(setPayload);
   setPayloadRef.current = setPayload;
 
@@ -364,6 +365,43 @@ export default function StoryBuddyClient() {
     payload != null && payloadHasUnresolvedPlaceholders(payload);
   const allowCustomInput = payload?.allow_custom_input !== false;
 
+  // Keyboard shortcuts:
+  // - 1/2/3 selects the corresponding option (when available)
+  // - 4 focuses the custom input
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      const isTypingContext =
+        tag === "input" ||
+        tag === "textarea" ||
+        (target != null && target.isContentEditable);
+      if (isTypingContext) return;
+
+      if (isWaitingForPayload) return;
+
+      if (e.key === "4") {
+        customInputRef.current?.focus();
+        e.preventDefault();
+        return;
+      }
+
+      if (e.key === "1" || e.key === "2" || e.key === "3") {
+        const idx = Number(e.key) - 1;
+        const choice = choicesList[idx] ?? "";
+        if (choice.trim().length === 0) return;
+        handleChoiceClick(idx, choice);
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [choicesList, isWaitingForPayload]);
+
   return (
     <>
       <Script
@@ -449,7 +487,7 @@ export default function StoryBuddyClient() {
                       payload contains real text.
                     </p>
                   )}
-                  <p className="text-themed text-base leading-relaxed whitespace-pre-line">
+                  <p className="text-themed text-2xl leading-relaxed whitespace-pre-line">
                     {messageToPlayer ||
                       (hasPlaceholderIssue
                         ? "(message_to_player not substituted — fix in Voiceflow)"
@@ -505,7 +543,7 @@ export default function StoryBuddyClient() {
                         key={`choice-${i}-${choice.slice(0, 48)}`}
                         type="button"
                         disabled={!hasChoice || isWaitingForPayload}
-                        className="h-full w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-themed text-base leading-relaxed font-mono transition-all duration-200 motion-reduce:transition-none enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 hover:border-primary active:translate-y-0 active:scale-[0.99] motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+                        className="h-full w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-themed text-base leading-relaxed font-mono transition-all duration-200 motion-reduce:transition-none enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/14 hover:shadow-md hover:shadow-black/10 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 hover:border-primary active:translate-y-0 active:scale-[0.99] motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                         style={{
                           backgroundColor:
                             "color-mix(in srgb, var(--palette-background) 90%, var(--palette-secondary) 10%)",
@@ -529,6 +567,7 @@ export default function StoryBuddyClient() {
                     </label>
                     <input
                       id="story-buddy-custom-input"
+                      ref={customInputRef}
                       type="text"
                       value={customInputValue}
                       onChange={(e) => setCustomInputValue(e.target.value)}

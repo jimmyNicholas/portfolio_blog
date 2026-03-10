@@ -20,10 +20,10 @@ export default function StoryBuddyPage() {
           <h1 className="font-mono font-bold text-themed text-2xl md:text-3xl">
             Story Buddy
           </h1>
-          <p className="text-secondary leading-relaxed">
+          {/* <p className="text-secondary leading-relaxed">
             An interactive voice-powered story companion. Chat to build a story
             together.
-          </p>
+          </p> */}
         </div>
       </header>
 
