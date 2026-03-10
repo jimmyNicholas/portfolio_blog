@@ -491,7 +491,7 @@ export default function StoryBuddyClient() {
                       key={`choice-${i}-${choice.slice(0, 48)}`}
                       type="button"
                       disabled={!hasChoice || isWaitingForPayload}
-                      className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-accent text-sm leading-snug font-mono transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-accent text-sm leading-snug font-mono transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/25 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5 hover:border-primary active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                       style={{
                         backgroundColor:
                           "color-mix(in srgb, var(--palette-background) 85%, var(--palette-secondary) 15%)",
@@ -521,7 +521,7 @@ export default function StoryBuddyClient() {
                       type="button"
                       onClick={handleCustomSubmit}
                       disabled={isWaitingForPayload}
-                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl text-accent text-sm font-mono font-medium transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl text-accent text-sm font-mono font-medium transition-all duration-200 enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/25 hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
                     >
                       Submit
                     </button>
