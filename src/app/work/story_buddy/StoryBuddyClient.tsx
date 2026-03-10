@@ -364,6 +364,11 @@ export default function StoryBuddyClient() {
   const hasPlaceholderIssue =
     payload != null && payloadHasUnresolvedPlaceholders(payload);
   const allowCustomInput = payload?.allow_custom_input !== false;
+  const hasInitialContent =
+    hasFinalStory ||
+    storySoFar.length > 0 ||
+    messageToPlayer.length > 0 ||
+    choicesList.length > 0;
 
   // Keyboard shortcuts:
   // - 1/2/3 selects the corresponding option (when available)
@@ -409,6 +414,24 @@ export default function StoryBuddyClient() {
         strategy="lazyOnload"
         onLoad={() => setScriptLoaded(true)}
       />
+      {!hasInitialContent ? (
+        <div className="min-h-[400px] border-2 border-secondary rounded-3xl p-8 flex flex-col items-center justify-center text-center space-y-4"
+          style={{
+            backgroundColor:
+              "color-mix(in srgb, var(--palette-background) 96%, var(--palette-secondary) 4%)",
+          }}
+        >
+          <div className="inline-flex items-center justify-center rounded-full border-2 border-primary/70 px-4 py-2">
+            <span className="mr-3 inline-block h-8 w-8 rounded-full border-4 border-secondary/60 border-t-primary animate-spin motion-reduce:animate-none" />
+            <span className="font-mono text-themed text-base">
+              Connecting to Story Buddy…
+            </span>
+          </div>
+          <p className="text-secondary text-sm max-w-xl">
+            Setting up your story space. This usually takes just a moment.
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 min-h-[500px]">
         {hasFinalStory ? (
           <section
@@ -594,6 +617,7 @@ export default function StoryBuddyClient() {
           </>
         )}
       </div>
+      )}
 
       {/* <div
         className="mt-6 border-2 border-secondary rounded-3xl p-4"
