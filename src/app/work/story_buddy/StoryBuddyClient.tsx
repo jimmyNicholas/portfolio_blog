@@ -34,6 +34,7 @@ type StoryPayload = {
   choice_a?: string;
   choice_b?: string;
   choice_c?: string;
+  final_title?: string;
   final_story?: string;
   allow_custom_input?: boolean;
 };
@@ -98,6 +99,8 @@ export default function StoryBuddyClient() {
   // Persist last non-empty story/message so UI doesn't reset on empty payloads
   const [storySoFarState, setStorySoFarState] = useState("");
   const [messageToPlayerState, setMessageToPlayerState] = useState("");
+  const [finalTitleState, setFinalTitleState] = useState("");
+  const [finalStoryState, setFinalStoryState] = useState("");
   const [isWaitingForPayload, setIsWaitingForPayload] = useState(false);
 
   const targetRef = useRef<HTMLDivElement>(null);
@@ -271,21 +274,32 @@ export default function StoryBuddyClient() {
         // Coerce to expected types (Voiceflow can send story_so_far as 0, etc.)
         const coercedStory = String(p.story_so_far ?? "");
         const coercedMsg = String(p.message_to_player ?? "");
+        const coercedFinalTitle = String(p.final_title ?? "");
+        const coercedFinalStory = String(p.final_story ?? "");
         p = {
           ...p,
           story_so_far: coercedStory,
           message_to_player: coercedMsg,
+          final_title: coercedFinalTitle,
+          final_story: coercedFinalStory,
         };
 
         // Only update displayed story/message when payload provides non-empty values
         const hasStoryUpdate = coercedStory.trim().length > 0;
         const resolvedMsg = resolveMessageToPlayer(coercedMsg);
         const hasMsgUpdate = resolvedMsg.trim().length > 0;
+        const hasFinalUpdate =
+          coercedFinalTitle.trim().length > 0 ||
+          coercedFinalStory.trim().length > 0;
         if (hasStoryUpdate) setStorySoFarState(coercedStory);
         if (hasMsgUpdate) setMessageToPlayerState(coercedMsg);
+        if (hasFinalUpdate) {
+          setFinalTitleState(coercedFinalTitle);
+          setFinalStoryState(coercedFinalStory);
+        }
 
         // Clear waiting indicator when we receive something meaningful for the next turn
-        if (hasStoryUpdate || hasMsgUpdate || normalized.length > 0) {
+        if (hasStoryUpdate || hasMsgUpdate || hasFinalUpdate || normalized.length > 0) {
           setIsWaitingForPayload(false);
         }
 
@@ -334,6 +348,15 @@ export default function StoryBuddyClient() {
   // Story/message: don't reset UI when payload sends empty strings
   const storySoFar = storySoFarState.trimEnd();
   const messageToPlayer = resolveMessageToPlayer(messageToPlayerState);
+  const finalTitle = finalTitleState.trim();
+  const finalStory = finalStoryState
+    .replace(/\\\\n/g, "\n")
+    .replace(/\\n/g, "\n")
+    .trim();
+  // Treat sentinel "0" (Voiceflow default) as empty
+  const isEmptyFinalTitle = finalTitle.length === 0 || finalTitle === "0";
+  const isEmptyFinalStory = finalStory.length === 0 || finalStory === "0";
+  const hasFinalStory = !isEmptyFinalTitle || !isEmptyFinalStory;
   const choicesFromPayload = payload != null ? normalizeChoices(payload) : [];
   const choicesList =
     choicesFromPayload.length > 0 ? choicesFromPayload : choicesState;
@@ -349,146 +372,169 @@ export default function StoryBuddyClient() {
         onLoad={() => setScriptLoaded(true)}
       />
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 min-h-[500px]">
-        <div
-          className="border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[500px]"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
-          }}
-        >
-          <h2 className="font-mono font-bold text-themed text-lg mb-3">
-            Story so far
-          </h2>
-          <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto">
-            {storySoFar ? (
-              <ul className="space-y-3 pl-5 list-disc marker:text-primary">
-                {parseStoryLines(storySoFar).map((paragraph, i) => (
-                  <li key={i}>{paragraph}</li>
-                ))}
-              </ul>
-            ) : (
-              <span className="opacity-70">
-                Your accumulated story will appear here as you chat.
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4 min-h-[500px]">
+        {hasFinalStory ? (
           <div
-            className="flex items-center gap-3 px-4 py-2 border-2 border-secondary rounded-2xl shrink-0"
+            className="lg:col-span-2 border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[500px]"
             style={{
               backgroundColor:
-                "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
+                "color-mix(in srgb, var(--palette-background) 90%, var(--palette-secondary) 10%)",
             }}
           >
-            <span className="font-mono text-accent text-sm">Options</span>
-          </div>
-
-          {hasPlaceholderIssue && (
-            <div
-              className="border-2 border-amber-600/80 rounded-2xl p-3 text-amber-200 text-xs font-mono bg-amber-950/40"
-              role="status"
-            >
-              Voiceflow is sending template tokens (e.g.{" "}
-              <code className="opacity-90">{"{message_to_player}"}</code>) instead of real text.
-              Wire the same way you do for <code className="opacity-90">story_so_far</code> so the
-              trace payload contains actual strings, not placeholders.
+            <h2 className="font-mono font-bold text-themed text-lg mb-3">
+              Final story
+            </h2>
+            {finalTitle && (
+              <h3 className="font-mono text-primary text-base mb-3">
+                {finalTitle}
+              </h3>
+            )}
+            <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto whitespace-pre-line font-mono">
+              {finalStory || "(No final story provided.)"}
             </div>
-          )}
-
-          {(messageToPlayer || hasPlaceholderIssue) && (
+          </div>
+        ) : (
+          <>
             <div
-              className="flex-1 min-h-[120px] border-2 border-secondary rounded-3xl p-4 overflow-y-auto"
+              className="border-2 border-secondary rounded-3xl p-6 flex flex-col min-h-[500px]"
               style={{
                 backgroundColor:
                   "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
               }}
             >
-              <p
-                className="text-accent text-sm leading-relaxed font-mono whitespace-pre-line"
-              >
-                {messageToPlayer ||
-                  (hasPlaceholderIssue
-                    ? "(message_to_player not substituted — fix in Voiceflow)"
-                    : "")}
-              </p>
-            </div>
-          )}
-
-          <div
-            className="relative grid grid-cols-2 gap-3 shrink-0 p-4 border-2 border-secondary rounded-3xl"
-            style={{
-              backgroundColor:
-                "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
-            }}
-            aria-busy={isWaitingForPayload ? "true" : "false"}
-          >
-            {isWaitingForPayload && (
-              <div
-                className="absolute inset-0 z-10 rounded-3xl bg-[color:var(--palette-background)]/70 backdrop-blur-[1px] flex items-center justify-center"
-                role="status"
-                aria-live="polite"
-              >
-                <div className="flex flex-col items-center gap-3 px-5 py-4 border-2 border-secondary rounded-2xl bg-[color:var(--palette-background)]/90">
-                  <span
-                    className="inline-block h-8 w-8 rounded-full border-4 border-accent/30 border-t-primary animate-spin"
-                    aria-hidden="true"
-                  />
-                  <div className="text-accent text-sm font-mono">
-                    Thinking…
-                  </div>
-                </div>
+              <h2 className="font-mono font-bold text-themed text-lg mb-3">
+                Story so far
+              </h2>
+              <div className="text-accent text-sm leading-relaxed flex-1 overflow-y-auto">
+                {storySoFar ? (
+                  <ul className="space-y-3 pl-5 list-disc marker:text-primary">
+                    {parseStoryLines(storySoFar).map((paragraph, i) => (
+                      <li key={i}>{paragraph}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span className="opacity-70">Your story will go here...</span>
+                )}
               </div>
-            )}
-            {[0, 1, 2].map((i) => {
-              const choice = choicesList[i] ?? "";
-              const hasChoice = choice.length > 0;
-              return (
-                <button
-                  key={`choice-${i}-${choice.slice(0, 48)}`}
-                  type="button"
-                  disabled={!hasChoice || isWaitingForPayload}
-                  className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-accent text-sm leading-snug font-mono transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            </div>
+
+            <div className="flex flex-col gap-4 min-h-[500px]">
+              <div
+                className="flex items-center gap-3 px-4 py-2 border-2 border-secondary rounded-2xl shrink-0"
+                style={{
+                  backgroundColor:
+                    "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
+                }}
+              >
+                <span className="font-mono text-accent text-sm">Options</span>
+              </div>
+
+              {hasPlaceholderIssue && (
+                <div
+                  className="border-2 border-amber-600/80 rounded-2xl p-3 text-amber-200 text-xs font-mono bg-amber-950/40"
+                  role="status"
+                >
+                  Voiceflow is sending template tokens (e.g.{" "}
+                  <code className="opacity-90">{"{message_to_player}"}</code>)
+                  instead of real text. Wire the same way you do for{" "}
+                  <code className="opacity-90">story_so_far</code> so the trace
+                  payload contains actual strings, not placeholders.
+                </div>
+              )}
+
+              {(messageToPlayer || hasPlaceholderIssue) && (
+                <div
+                  className="flex-1 min-h-[120px] border-2 border-secondary rounded-3xl p-4 overflow-y-auto"
                   style={{
                     backgroundColor:
-                      "color-mix(in srgb, var(--palette-background) 85%, var(--palette-secondary) 15%)",
+                      "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
                   }}
-                  onClick={() =>
-                    hasChoice && !isWaitingForPayload && handleChoiceClick(i, choice)
-                  }
                 >
-                  {hasChoice ? choice : "—"}
-                </button>
-              );
-            })}
-            {allowCustomInput ? (
-              <div className="flex flex-col gap-2">
-                <input
-                  type="text"
-                  value={customInputValue}
-                  onChange={(e) => setCustomInputValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
-                  disabled={isWaitingForPayload}
-                  placeholder="Or type your own action..."
-                  className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-accent text-sm font-mono bg-transparent placeholder:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
-                />
-                <button
-                  type="button"
-                  onClick={handleCustomSubmit}
-                  disabled={isWaitingForPayload}
-                  className="w-full px-4 py-2 border-2 border-primary rounded-2xl text-accent text-sm font-mono font-medium transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
-                >
-                  Submit
-                </button>
+                  <p className="text-accent text-sm leading-relaxed font-mono whitespace-pre-line">
+                    {messageToPlayer ||
+                      (hasPlaceholderIssue
+                        ? "(message_to_player not substituted — fix in Voiceflow)"
+                        : "")}
+                  </p>
+                </div>
+              )}
+
+              <div
+                className="relative grid grid-cols-2 gap-3 shrink-0 p-4 border-2 border-secondary rounded-3xl"
+                style={{
+                  backgroundColor:
+                    "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+                }}
+                aria-busy={isWaitingForPayload ? "true" : "false"}
+              >
+                {isWaitingForPayload && (
+                  <div
+                    className="absolute inset-0 z-10 rounded-3xl bg-[color:var(--palette-background)]/70 backdrop-blur-[1px] flex items-center justify-center"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <div className="flex flex-col items-center gap-3 px-5 py-4 border-2 border-secondary rounded-2xl bg-[color:var(--palette-background)]/90">
+                      <span
+                        className="inline-block h-8 w-8 rounded-full border-4 border-accent/30 border-t-primary animate-spin"
+                        aria-hidden="true"
+                      />
+                      <div className="text-accent text-sm font-mono">
+                        Thinking…
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {[0, 1, 2].map((i) => {
+                  const choice = choicesList[i] ?? "";
+                  const hasChoice = choice.length > 0;
+                  return (
+                    <button
+                      key={`choice-${i}-${choice.slice(0, 48)}`}
+                      type="button"
+                      disabled={!hasChoice || isWaitingForPayload}
+                      className="w-full text-left px-4 py-3 border-2 border-primary rounded-2xl text-accent text-sm leading-snug font-mono transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      style={{
+                        backgroundColor:
+                          "color-mix(in srgb, var(--palette-background) 85%, var(--palette-secondary) 15%)",
+                      }}
+                      onClick={() =>
+                        hasChoice &&
+                        !isWaitingForPayload &&
+                        handleChoiceClick(i, choice)
+                      }
+                    >
+                      {hasChoice ? choice : "—"}
+                    </button>
+                  );
+                })}
+                {allowCustomInput ? (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={customInputValue}
+                      onChange={(e) => setCustomInputValue(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleCustomSubmit()}
+                      disabled={isWaitingForPayload}
+                      placeholder="Or type your own action..."
+                      className="w-full px-3 py-2 border-2 border-secondary rounded-2xl text-accent text-sm font-mono bg-transparent placeholder:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCustomSubmit}
+                      disabled={isWaitingForPayload}
+                      className="w-full px-4 py-2 border-2 border-primary rounded-2xl text-accent text-sm font-mono font-medium transition-colors hover:bg-[color:var(--palette-primary)]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center px-4 py-3 border-2 border-secondary rounded-2xl text-accent/50 text-sm font-mono">
+                    —
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex items-center justify-center px-4 py-3 border-2 border-secondary rounded-2xl text-accent/50 text-sm font-mono">
-                —
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       <div
@@ -536,6 +582,8 @@ export default function StoryBuddyClient() {
           />
         </div>
       </div>
+
+      {/* Final story is shown in place of the main UI when available */}
     </>
   );
 }
