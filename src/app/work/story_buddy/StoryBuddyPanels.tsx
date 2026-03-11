@@ -38,7 +38,7 @@ type StorySoFarPanelProps = {
 export function StorySoFarPanel({ storySoFar }: StorySoFarPanelProps) {
   return (
     <section
-      className="border-[3px] border-primary rounded-3xl p-6 flex flex-col min-h-[500px]"
+      className="border-[3px] border-primary rounded-3xl p-6 flex flex-col min-h-[500px] max-h-[560px] overflow-hidden"
       aria-label="Story so far"
       style={{
         backgroundColor:
@@ -253,7 +253,7 @@ type WelcomeOverlayProps = {
 
 export function WelcomeOverlay({ gameReady = false, onStart, embedTargetRef }: WelcomeOverlayProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3 min-h-[500px]">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {/* Row 1: Overview (left) | How It Works (right) */}
       <div
         className="rounded-3xl border-[3px] border-primary px-5 py-4 flex items-start min-h-0"
@@ -268,6 +268,16 @@ export function WelcomeOverlay({ gameReady = false, onStart, embedTargetRef }: W
             Story Buddy is a collaborative story-building chatbot. Each turn,
             you contribute one sentence to an unfolding story, guided by AI
             through five classic dramatic stages.
+          </p>
+          <h2 className="font-mono font-bold text-themed text-lg mt-8">Instructions</h2>
+          <p className="text-sm text-themed leading-relaxed max-w-md">
+            You can use the mouse to click on the options, or you can use the keyboard to navigate the options.
+            
+            
+          </p>
+          <p className="text-sm text-themed leading-relaxed max-w-md">
+          Press <kbd className="font-mono">1</kbd>,{" "}
+          <kbd className="font-mono">2</kbd>, or <kbd className="font-mono">3</kbd> to pick an option, or <kbd className="font-mono">4</kbd> to jump to the custom input.
           </p>
         </div>
       </div>
@@ -313,10 +323,31 @@ export function WelcomeOverlay({ gameReady = false, onStart, embedTargetRef }: W
           <h2 className="font-mono font-bold text-themed text-lg">
             Examples
           </h2>
-            <p className="text-sm text-themed leading-relaxed max-w-md">
-              Start a fantasy adventure where I&apos;m a reluctant hero who just
-              found a mysterious key in an old library. — Turn this into a cozy mystery in a seaside town, and give me three risky options for what I could do next.
+          <div className="text-sm text-themed leading-relaxed max-w-md space-y-2">
+            <p className="font-mono text-xs text-secondary">
+              Final story
             </p>
+            <p className="font-mono font-bold text-themed">
+              The Gnome Whisperer
+            </p>
+            <p>
+              Sarah&apos;s cat, Mr. Whiskers, had developed an unusual obsession
+              with the neighbour&apos;s garden gnomes. Every morning, Mr.
+              Whiskers would sit by the window, watching the colourful gnomes,
+              and had begun meowing what sounded suspiciously like gnome battle
+              cries at dawn.
+            </p>
+            <p>
+              Concerned about her cat&apos;s odd behaviour, Sarah decided to have
+              a gentle word with her neighbour. Mrs. Henderson listened politely
+              and suggested they observe Mr. Whiskers together. At dawn, they
+              witnessed something extraordinary: Mr. Whiskers leading a
+              procession of neighbourhood cats towards the gnomes.
+            </p>
+            <p>
+              [Continued...]
+            </p>
+          </div>
           </div>
       </div>
       <div
