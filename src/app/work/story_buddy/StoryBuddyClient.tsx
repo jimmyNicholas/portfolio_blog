@@ -134,6 +134,7 @@ export default function StoryBuddyClient() {
       >
         <WelcomeOverlay
           gameReady={gameReady}
+          embedTargetRef={targetRef}
           onStart={() => {
             setShowWelcome(false);
             const interact =
@@ -178,15 +179,6 @@ export default function StoryBuddyClient() {
           )}
         </div>
       ) : null}
-
-      {/* Questions Chat: single persistent container below content, hidden (load() only called once) */}
-      <div className="sr-only" aria-hidden="true">
-        <div
-          ref={targetRef}
-          id="voiceflow-chat-frame"
-          className="w-full min-h-[320px]"
-        />
-      </div>
 
       {/* <div
         className="mt-6 border-2 border-secondary rounded-3xl p-4"

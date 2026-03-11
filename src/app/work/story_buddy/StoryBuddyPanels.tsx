@@ -248,9 +248,10 @@ export function StoryBuddyConnecting() {
 type WelcomeOverlayProps = {
   gameReady?: boolean;
   onStart: () => void;
+  embedTargetRef?: React.RefObject<HTMLDivElement | null>;
 };
 
-export function WelcomeOverlay({ gameReady = false, onStart }: WelcomeOverlayProps) {
+export function WelcomeOverlay({ gameReady = false, onStart, embedTargetRef }: WelcomeOverlayProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3 min-h-[500px]">
       {/* Row 1: Overview (left) | How It Works (right) */}
@@ -325,7 +326,7 @@ export function WelcomeOverlay({ gameReady = false, onStart }: WelcomeOverlayPro
             "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
         }}
       >
-        <div className="space-y-2 shrink-0">
+        {/* <div className="space-y-2 shrink-0">
           <h2 className="font-mono font-bold text-themed text-lg">
             Questions Bot
           </h2>
@@ -334,7 +335,14 @@ export function WelcomeOverlay({ gameReady = false, onStart }: WelcomeOverlayPro
               what&apos;s happened so far” or “Slow down and add more
               atmosphere.”
             </p>
-          </div>
+          </div> */}
+        {embedTargetRef && (
+          <div
+            ref={embedTargetRef}
+            id="voiceflow-chat-frame"
+            className="w-full min-h-[280px] max-h-[320px] flex-1 mt-3 overflow-y-auto"
+          />
+        )}
       </div>
       <div />
       <button
