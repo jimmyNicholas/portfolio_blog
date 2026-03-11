@@ -205,7 +205,15 @@ export function OptionsPanel({
             onClick={onCustomSubmit}
             disabled={isWaitingForPayload || !customInputValue.trim()}
             aria-label="Submit your story action"
-            className="sm:w-32 px-4 py-2 border-2 border-primary rounded-2xl text-secondary text-base font-mono font-medium transition-all duration-200 motion-reduce:transition-none enabled:cursor-pointer hover:bg-[color:var(--palette-primary)]/10 hover:shadow-sm hover:-translate-y-0.5 motion-reduce:hover:translate-y-0 active:translate-y-0 active:scale-[0.99] motion-reduce:active:scale-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0 disabled:active:scale-100"
+            className="sm:w-32 px-4 py-2 rounded-2xl font-mono text-base font-medium text-themed transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor:
+                "color-mix(in srgb, #4b9b6a 35%, var(--palette-background) 65%)",
+              borderColor:
+                "color-mix(in srgb, #4b9b6a 80%, var(--palette-primary) 20%)",
+              borderWidth: 2,
+              borderStyle: "solid",
+            }}
           >
             Submit
           </button>
@@ -238,92 +246,110 @@ export function StoryBuddyConnecting() {
 }
 
 type WelcomeOverlayProps = {
+  gameReady?: boolean;
   onStart: () => void;
 };
 
-export function WelcomeOverlay({ onStart }: WelcomeOverlayProps) {
+export function WelcomeOverlay({ gameReady = false, onStart }: WelcomeOverlayProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-[1fr_1fr_auto] gap-3 min-h-[500px]">
-        <div
-          className="h-full rounded-3xl border-[3px] border-primary px-5 py-4 flex items-start"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--palette-background) 94%, var(--palette-secondary) 6%)",
-          }}
-        >
-          <div className="space-y-2">
-            <h2 className="font-mono font-bold text-themed text-lg">Overview</h2>
-            <p className="text-sm text-secondary leading-relaxed max-w-md">
-              Story Buddy helps you co‑write interactive stories. You choose what
-              happens next; the bot keeps track of the world, tone, and
-              characters.
+    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3 min-h-[500px]">
+      {/* Row 1: Overview (left) | How It Works (right) */}
+      <div
+        className="rounded-3xl border-[3px] border-primary px-5 py-4 flex items-start min-h-0"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--palette-background) 94%, var(--palette-secondary) 6%)",
+        }}
+      >
+        <div className="space-y-2">
+          <h2 className="font-mono font-bold text-themed text-lg">Overview</h2>
+          <p className="text-sm text-themed leading-relaxed max-w-md">
+            Story Buddy is a collaborative story-building chatbot. Each turn,
+            you contribute one sentence to an unfolding story, guided by AI
+            through five classic dramatic stages.
+          </p>
+        </div>
+      </div>
+      <div
+        className="rounded-3xl border-2 border-secondary px-5 py-4 flex items-start min-h-0 overflow-y-auto"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+        }}
+      >
+        <div className="space-y-2">
+          <h2 className="font-mono font-bold text-themed text-lg">
+            How It Works
+          </h2>
+            <div className="text-sm text-themed leading-relaxed space-y-2 max-w-md">
+              <p>
+                You and Story Buddy co-write a story, one sentence at a time. Each
+                turn, the bot offers three curated options (or you can type your
+                own). The story moves through the five narrative stages of
+                Freytag&apos;s Pyramid:
+              </p>
+              <p className="font-mono text-xs">
+                Exposition → Rising Action → Climax → Falling Action → Resolution
+              </p>
+              <p>
+                The bot tracks which stage you&apos;re in and nudges the
+                narrative forward when the energy shifts. At the end, you choose
+                a moral for your story, and a polished final version is
+                presented.
+              </p>
+            </div>
+        </div>
+      </div>
+      {/* Row 2: Examples (left) | Questions Bot (right) */}
+      <div
+        className="rounded-3xl border-2 border-secondary px-5 py-4 flex items-start min-h-0"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+        }}
+      >
+        <div className="space-y-2">
+          <h2 className="font-mono font-bold text-themed text-lg">
+            Examples
+          </h2>
+            <p className="text-sm text-themed leading-relaxed max-w-md">
+              Start a fantasy adventure where I&apos;m a reluctant hero who just
+              found a mysterious key in an old library. — Turn this into a cozy mystery in a seaside town, and give me three risky options for what I could do next.
             </p>
           </div>
-        </div>
-        <div
-          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
-          }}
-        >
-          <div className="space-y-2">
-            <h2 className="font-mono font-bold text-themed text-lg">
-              Example 1
-            </h2>
-            <p className="text-sm text-secondary leading-relaxed max-w-md">
-              “Start a fantasy adventure where I&apos;m a reluctant hero who just
-              found a mysterious key in an old library.”
-            </p>
-          </div>
-        </div>
-        <div
-          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
-          }}
-        >
-          <div className="space-y-2">
-            <h2 className="font-mono font-bold text-themed text-lg">
-              Questions Bot
-            </h2>
-            <p className="text-sm text-secondary leading-relaxed max-w-md">
+      </div>
+      <div
+        className="rounded-3xl border-2 border-secondary px-5 py-4 flex flex-col min-h-0 overflow-hidden"
+        style={{
+          backgroundColor:
+            "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
+        }}
+      >
+        <div className="space-y-2 shrink-0">
+          <h2 className="font-mono font-bold text-themed text-lg">
+            Questions Bot
+          </h2>
+            <p className="text-sm text-themed leading-relaxed max-w-md">
               Ask for recaps, pacing changes, or world details. Try: “Summarize
               what&apos;s happened so far” or “Slow down and add more
               atmosphere.”
             </p>
           </div>
-        </div>
-        <div
-          className="h-full rounded-3xl border-2 border-secondary px-5 py-4 flex items-start"
-          style={{
-            backgroundColor:
-              "color-mix(in srgb, var(--palette-background) 97%, var(--palette-secondary) 3%)",
-          }}
-        >
-          <div className="space-y-2">
-            <h2 className="font-mono font-bold text-themed text-lg">
-              Example 2
-            </h2>
-            <p className="text-sm text-secondary leading-relaxed max-w-md">
-              “Turn this into a cozy mystery in a seaside town, and give me three
-              risky options for what I could do next.”
-            </p>
-          </div>
-        </div>
+      </div>
+      <div />
       <button
         type="button"
         onClick={onStart}
-        className="md:col-span-2 w-full rounded-3xl border-2 px-6 py-3 font-mono text-base text-themed transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)]"
+        disabled={!gameReady}
+        className="md:col-span-2 w-full rounded-3xl border-2 px-6 py-3 font-mono text-base text-themed transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--palette-background)] disabled:opacity-60 disabled:cursor-not-allowed"
         style={{
           backgroundColor:
-            "color-mix(in srgb, #4b9b6a 22%, var(--palette-background) 78%)",
+            "color-mix(in srgb, #4b9b6a 35%, var(--palette-background) 65%)",
           borderColor:
-            "color-mix(in srgb, #4b9b6a 65%, var(--palette-primary) 35%)",
+            "color-mix(in srgb, #4b9b6a 80%, var(--palette-primary) 20%)",
         }}
       >
-        Start
+        {gameReady ? "Start" : "Loading…"}
       </button>
     </div>
   );

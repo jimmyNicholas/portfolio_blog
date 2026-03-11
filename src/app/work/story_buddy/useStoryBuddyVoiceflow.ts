@@ -30,6 +30,10 @@ declare global {
 
 type UseStoryBuddyVoiceflowParams = {
   scriptLoaded: boolean;
+  /** When true, embed is shown in welcome (Questions Bot); when false, in hidden canvas */
+  showWelcome: boolean;
+  /** When true, welcome overlay is mounted so targetRef is set when showWelcome is true */
+  hasInitialContent: boolean;
   targetRef: { current: HTMLDivElement | null };
   setPayload: (payload: StoryPayload | null) => void;
   setChoicesState: (choices: string[]) => void;
@@ -38,10 +42,16 @@ type UseStoryBuddyVoiceflowParams = {
   setFinalTitleState: (title: string) => void;
   setFinalStoryState: (story: string) => void;
   setIsWaitingForPayload: (waiting: boolean) => void;
+  /** Called when a trace with payload.start_signal is received (e.g. from Questions Bot start_signal path) */
+  onStartSignal?: () => void;
+  /** Called when the embed has finished loading and interact() will work */
+  onEmbedReady?: () => void;
 };
 
 export function useStoryBuddyVoiceflow({
   scriptLoaded,
+  showWelcome,
+  hasInitialContent,
   targetRef,
   setPayload,
   setChoicesState,
@@ -50,9 +60,21 @@ export function useStoryBuddyVoiceflow({
   setFinalTitleState,
   setFinalStoryState,
   setIsWaitingForPayload,
+  onStartSignal,
+  onEmbedReady,
 }: UseStoryBuddyVoiceflowParams) {
   const setPayloadRef = useRef(setPayload);
   setPayloadRef.current = setPayload;
+  const onStartSignalRef = useRef(onStartSignal);
+  onStartSignalRef.current = onStartSignal;
+  const onEmbedReadyRef = useRef(onEmbedReady);
+  onEmbedReadyRef.current = onEmbedReady;
+  const loadedRef = useRef(false);
+  const firstPayloadReceivedRef = useRef(false);
+  const loadTimeRef = useRef(0);
+  const pendingReadyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const MIN_READY_WAIT_MS = 2500;
 
   // Receive payload from extension (custom event same-window, postMessage from iframe)
   useEffect(() => {
@@ -76,6 +98,8 @@ export function useStoryBuddyVoiceflow({
 
   useEffect(() => {
     if (!scriptLoaded || !targetRef.current || !window.voiceflow?.chat) return;
+    if (loadedRef.current) return;
+    loadedRef.current = true;
 
     const extension = {
       name: "story_buddy_payload",
@@ -174,6 +198,19 @@ export function useStoryBuddyVoiceflow({
         }
         console.log("[Story Buddy] payload", p);
 
+        if (!firstPayloadReceivedRef.current) {
+          firstPayloadReceivedRef.current = true;
+          const elapsed = Date.now() - loadTimeRef.current;
+          if (elapsed >= MIN_READY_WAIT_MS) {
+            onEmbedReadyRef.current?.();
+          } else {
+            pendingReadyTimeoutRef.current = setTimeout(
+              () => onEmbedReadyRef.current?.(),
+              MIN_READY_WAIT_MS - elapsed
+            );
+          }
+        }
+
         setPayloadRef.current(p);
         try {
           window.dispatchEvent(
@@ -197,24 +234,47 @@ export function useStoryBuddyVoiceflow({
       },
     };
 
+    /** Match traces from the start_signal path (e.g. Questions Bot sends payload.start_signal) */
+    const startSignalExtension = {
+      name: "story_buddy_start_signal",
+      type: "effect" as const,
+      match: (args: unknown) => {
+        const trace = (args as { trace?: { payload?: unknown } }).trace;
+        if (!trace?.payload || typeof trace.payload !== "object") return false;
+        const userResponse = trace.payload as Record<string, unknown>;
+        return userResponse.start_signal != null && userResponse.start_signal !== false;
+      },
+      effect: (args: unknown) => {
+        const trace = (args as { trace?: { payload?: unknown } }).trace;
+        if (!trace?.payload || typeof trace.payload !== "object") return;
+        const userResponse = trace.payload as Record<string, unknown>;
+        const start_signal = userResponse.start_signal;
+        if (start_signal != null && start_signal !== false) {
+          onStartSignalRef.current?.();
+        }
+      },
+    };
+
+    const extensions = [extension, startSignalExtension];
+
+    loadTimeRef.current = Date.now();
+
     void window.voiceflow.chat.load({
       verify: { projectID: "69ae8dbe51c320e573369ab8" },
       url: "https://general-runtime.voiceflow.com",
       versionID: "production",
       voice: { url: "https://runtime-api.voiceflow.com" },
-      assistant: { extensions: [extension] },
+      assistant: { extensions },
       render: { mode: "embedded", target: targetRef.current },
       autostart: true,
     });
-  }, [
-    scriptLoaded,
-    targetRef,
-    setChoicesState,
-    setStorySoFarState,
-    setMessageToPlayerState,
-    setFinalTitleState,
-    setFinalStoryState,
-    setIsWaitingForPayload,
-  ]);
+
+    return () => {
+      if (pendingReadyTimeoutRef.current != null) {
+        clearTimeout(pendingReadyTimeoutRef.current);
+        pendingReadyTimeoutRef.current = null;
+      }
+    };
+  }, [scriptLoaded, targetRef]);
 }
 

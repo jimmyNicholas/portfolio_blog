@@ -31,6 +31,7 @@ export default function StoryBuddyClient() {
   const [finalStoryState, setFinalStoryState] = useState("");
   const [isWaitingForPayload, setIsWaitingForPayload] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [gameReady, setGameReady] = useState(false);
 
   const targetRef = useRef<HTMLDivElement>(null);
   const customInputRef = useRef<HTMLInputElement>(null);
@@ -70,8 +71,19 @@ export default function StoryBuddyClient() {
     setCustomInputValue("");
   };
 
+  const viewState = getStoryBuddyViewState({
+    storySoFarState,
+    messageToPlayerState,
+    finalTitleState,
+    finalStoryState,
+    payload,
+    choicesState,
+  });
+
   useStoryBuddyVoiceflow({
     scriptLoaded,
+    showWelcome,
+    hasInitialContent: viewState.hasInitialContent,
     targetRef,
     setPayload,
     setChoicesState,
@@ -80,6 +92,8 @@ export default function StoryBuddyClient() {
     setFinalTitleState,
     setFinalStoryState,
     setIsWaitingForPayload,
+    onStartSignal: () => setShowWelcome(false),
+    onEmbedReady: () => setGameReady(true),
   });
 
   const focusCustomInput = () => {
@@ -87,14 +101,7 @@ export default function StoryBuddyClient() {
   };
 
   useStoryBuddyShortcuts({
-    choicesList: getStoryBuddyViewState({
-      storySoFarState,
-      messageToPlayerState,
-      finalTitleState,
-      finalStoryState,
-      payload,
-      choicesState,
-    }).choicesList,
+    choicesList: viewState.choicesList,
     isWaitingForPayload,
     onChoiceSelected: handleChoiceClick,
     focusCustomInput,
@@ -110,14 +117,7 @@ export default function StoryBuddyClient() {
     hasPlaceholderIssue,
     allowCustomInput,
     hasInitialContent,
-  } = getStoryBuddyViewState({
-    storySoFarState,
-    messageToPlayerState,
-    finalTitleState,
-    finalStoryState,
-    payload,
-    choicesState,
-  });
+  } = viewState;
 
   return (
     <>
@@ -126,17 +126,32 @@ export default function StoryBuddyClient() {
         strategy="lazyOnload"
         onLoad={() => setScriptLoaded(true)}
       />
-      {!hasInitialContent ? (
+      {/* Overlay always mounted so embed slot ref is stable; hidden when not welcome */}
+      <div
+        className="min-h-[420px]"
+        style={{ display: showWelcome ? "block" : "none" }}
+        aria-hidden={!showWelcome}
+      >
+        <WelcomeOverlay
+          gameReady={gameReady}
+          onStart={() => {
+            setShowWelcome(false);
+            const interact =
+              (window as {
+                voiceflow?: { chat?: { interact?: (payload: unknown) => void } };
+              }).voiceflow?.chat?.interact;
+            if (typeof interact === "function") {
+              interact({
+                type: "custom_input",
+                payload: { start_signal: "true", is_custom: true },
+              });
+            }
+          }}
+        />
+      </div>
+      {!showWelcome && !hasInitialContent ? (
         <StoryBuddyConnecting />
-      ) : showWelcome ? (
-        <div className="min-h-[420px]">
-          <WelcomeOverlay
-            onStart={() => {
-              setShowWelcome(false);
-            }}
-          />
-        </div>
-      ) : (
+      ) : !showWelcome && hasInitialContent ? (
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 min-h-[420px]">
           {hasFinalStory ? (
             <FinalStoryPanel finalTitle={finalTitle} finalStory={finalStory} />
@@ -162,7 +177,16 @@ export default function StoryBuddyClient() {
             </>
           )}
         </div>
-      )}
+      ) : null}
+
+      {/* Questions Chat: single persistent container below content, hidden (load() only called once) */}
+      <div className="sr-only" aria-hidden="true">
+        <div
+          ref={targetRef}
+          id="voiceflow-chat-frame"
+          className="w-full min-h-[320px]"
+        />
+      </div>
 
       {/* <div
         className="mt-6 border-2 border-secondary rounded-3xl p-4"
@@ -187,10 +211,6 @@ export default function StoryBuddyClient() {
         </pre>
       </div> */}
 
-      {/* Voiceflow embed kept hidden below the main Story Buddy canvas */}
-      <div className="sr-only" aria-hidden="true">
-        <div id="voiceflow-chat-frame" ref={targetRef} className="w-full min-h-[320px]" />
-      </div>
     </>
   );
 }
