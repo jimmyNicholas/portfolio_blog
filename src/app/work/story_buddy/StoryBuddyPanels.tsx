@@ -321,7 +321,7 @@ export function WelcomeOverlay({ gameReady = false, onStart, embedTargetRef }: W
       >
         <div className="space-y-2">
           <h2 className="font-mono font-bold text-themed text-lg">
-            Examples
+            Example
           </h2>
           <div className="text-sm text-themed leading-relaxed max-w-md space-y-2">
             <p className="font-mono text-xs text-secondary">
