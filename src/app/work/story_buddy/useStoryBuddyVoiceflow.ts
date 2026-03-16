@@ -260,7 +260,7 @@ export function useStoryBuddyVoiceflow({
     loadTimeRef.current = Date.now();
 
     void window.voiceflow.chat.load({
-      verify: { projectID: "69ae8dbe51c320e573369ab8" },
+      verify: { projectID: "69b7862c34b5cdb5e2606360" },
       url: "https://general-runtime.voiceflow.com",
       versionID: "production",
       voice: { url: "https://runtime-api.voiceflow.com" },
