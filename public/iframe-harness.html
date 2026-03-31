@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Embed Harness</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 20px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    input { width: min(900px, 100%); padding: 8px 10px; font: inherit; }
+    button { padding: 8px 12px; font: inherit; cursor: pointer; }
+    .frame-wrap { border: 1px solid #9994; border-radius: 10px; overflow: hidden; }
+    iframe { width: 100%; height: 700px; border: 0; display: block; background: #fff; }
+    .meta { font-size: 13px; opacity: 0.85; margin-top: 8px; }
+    .log {
+      margin-top: 14px; padding: 10px; border: 1px solid #9994; border-radius: 8px;
+      max-height: 240px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px; white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h2>Iframe Embed Harness (LMS-style)</h2>
+
+  <div class="row">
+    <label for="src"><strong>Iframe src:</strong></label>
+    <input id="src" value="http://localhost:3000/elicosgamification/demo" />
+    <button id="loadBtn">Load iframe</button>
+  </div>
+
+  <div class="row">
+    <button id="askHeightBtn">Ask child for height</button>
+    <button id="fixed700Btn">Set fixed 700px</button>
+    <button id="clearLogBtn">Clear log</button>
+  </div>
+
+  <div class="frame-wrap">
+    <iframe
+      id="embedFrame"
+      title="Embedded activity"
+      allowfullscreen
+      loading="eager"
+      referrerpolicy="strict-origin-when-cross-origin">
+    </iframe>
+  </div>
+
+  <div class="meta">
+    Parent origin: <span id="parentOrigin"></span><br />
+    Last known child origin: <span id="childOrigin">unknown</span><br />
+    Current iframe height: <span id="heightReadout">700</span>px
+  </div>
+
+  <div id="log" class="log"></div>
+
+  <script>
+    const frame = document.getElementById("embedFrame");
+    const srcInput = document.getElementById("src");
+    const logEl = document.getElementById("log");
+    const childOriginEl = document.getElementById("childOrigin");
+    const heightReadoutEl = document.getElementById("heightReadout");
+    document.getElementById("parentOrigin").textContent = window.location.origin;
+
+    let lastChildOrigin = "*";
+
+    function log(msg) {
+      const time = new Date().toLocaleTimeString();
+      logEl.textContent += `[${time}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+      console.log(msg);
+    }
+
+    function setFrameHeight(px) {
+      const safe = Math.max(200, Math.min(5000, Number(px) || 700));
+      frame.style.height = `${safe}px`;
+      heightReadoutEl.textContent = String(safe);
+    }
+
+    function loadFrame() {
+      const url = srcInput.value.trim();
+      frame.src = url;
+      lastChildOrigin = "*";
+      childOriginEl.textContent = "unknown";
+      setFrameHeight(700);
+      log(`Loading iframe: ${url}`);
+    }
+
+    document.getElementById("loadBtn").addEventListener("click", loadFrame);
+    document.getElementById("fixed700Btn").addEventListener("click", () => {
+      setFrameHeight(700);
+      log("Set fixed iframe height to 700px");
+    });
+    document.getElementById("clearLogBtn").addEventListener("click", () => {
+      logEl.textContent = "";
+    });
+
+    document.getElementById("askHeightBtn").addEventListener("click", () => {
+      if (!frame.contentWindow) {
+        log("No iframe contentWindow yet.");
+        return;
+      }
+      const message = { type: "REQUEST_HEIGHT", source: "embed-harness" };
+      frame.contentWindow.postMessage(message, lastChildOrigin === "*" ? "*" : lastChildOrigin);
+      log(`Sent REQUEST_HEIGHT to child (targetOrigin=${lastChildOrigin})`);
+    });
+
+    window.addEventListener("message", (event) => {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+
+      lastChildOrigin = event.origin || "*";
+      childOriginEl.textContent = lastChildOrigin;
+
+      if (data.type === "SET_HEIGHT" && Number.isFinite(data.height)) {
+        setFrameHeight(data.height);
+        log(`Received SET_HEIGHT=${data.height} from ${event.origin}`);
+        return;
+      }
+
+      if (data.context === "h5p" && Number.isFinite(data.scrollHeight)) {
+        setFrameHeight(data.scrollHeight);
+        log(`Received h5p.scrollHeight=${data.scrollHeight} from ${event.origin}`);
+        return;
+      }
+
+      log(`Received message from ${event.origin}: ${JSON.stringify(data)}`);
+    });
+
+    frame.addEventListener("load", () => {
+      log("Iframe loaded (if blocked by frame headers/CSP, content may still be inaccessible).");
+      try {
+        const h = frame.contentWindow.document.documentElement.scrollHeight;
+        if (Number.isFinite(h) && h > 0) {
+          setFrameHeight(h + 8);
+          log(`Same-origin auto-height success: ${h + 8}px`);
+        }
+      } catch (err) {
+        log("Cross-origin frame: cannot read DOM directly (expected). Use postMessage resize.");
+      }
+    });
+
+    loadFrame();
+  </script>
+</body>
+</html>

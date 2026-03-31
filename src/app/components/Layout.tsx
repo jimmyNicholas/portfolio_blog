@@ -12,11 +12,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { isBusinessMode, isDarkMode, effectStyles } = useThemeContext();
 
   const isHomePage = pathname === "/";
+  const isEmbedRoute = pathname.startsWith("/elicosgamification");
 
   React.useEffect(() => {
     router.prefetch("/about");
     router.prefetch("/work");
   }, [router]);
+
+  if (isEmbedRoute) {
+    return (
+      <div className="min-h-screen bg-white text-neutral-900">
+        <h1 className="sr-only">Embedded activity</h1>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div

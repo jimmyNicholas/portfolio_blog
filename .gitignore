@@ -42,3 +42,6 @@ next-env.d.ts
 REFACTORING_SUMMARY.md
 STYLING_ARCHITECTURE.md
 NEXT_STEPS.md
+
+# temp files
+src/app/temp/

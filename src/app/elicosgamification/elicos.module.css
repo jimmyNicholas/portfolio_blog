@@ -1,0 +1,52 @@
+.shell {
+  min-height: 100vh;
+  background: #f4f6f8;
+  color: #222b36;
+  padding: 2rem 1rem;
+}
+
+.content {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.content h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.7rem, 1.4rem + 1vw, 2.2rem);
+  line-height: 1.25;
+  font-weight: 700;
+  color: #1a2530;
+}
+
+.content p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #324150;
+}
+
+.content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+  background: #eef2f5;
+  color: #243447;
+  border: 1px solid #d8e0e7;
+  border-radius: 6px;
+  padding: 0.1rem 0.4rem;
+}
+
+.content [data-rise-card] {
+  background: #ffffff;
+  border: 1px solid #dbe3ea;
+  border-radius: 10px;
+  padding: clamp(1.25rem, 1rem + 0.8vw, 1.8rem);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.content [data-rise-note] {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #556779;
+}
