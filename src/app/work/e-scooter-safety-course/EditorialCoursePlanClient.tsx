@@ -401,14 +401,14 @@ postContent: (
 
   return (
     <div className="space-y-8">
-      <div className="md:grid md:grid-cols-[280px_1fr] md:gap-10">
+      <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-10">
         <nav aria-label="Contents" className="space-y-3">
         {/* Mobile TOC */}
         <div
-          className="md:hidden -mx-2 px-2 pb-1 overflow-x-auto"
+          className="lg:hidden -mx-2 px-2 pb-1 overflow-x-auto"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-max">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 min-w-max">
             {SECTIONS.map((s, i) => (
               <TocLink
                 key={s.id}
@@ -424,7 +424,7 @@ postContent: (
 
         {/* Desktop TOC */}
         <div
-          className="hidden md:block border-2 border-secondary rounded-3xl p-4"
+          className="hidden lg:block border-2 border-secondary rounded-3xl p-4"
           style={{
             backgroundColor:
               "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
@@ -487,7 +487,7 @@ postContent: (
                   {section.postRows.map((row) => (
                     <div
                       key={row.postLabel}
-                      className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-2 lg:gap-6"
+                      className="grid grid-cols-1 xl:grid-cols-[180px_1fr] gap-2 xl:gap-6"
                     >
                       <div className="font-mono text-accent font-bold">
                         {row.postLabel}
