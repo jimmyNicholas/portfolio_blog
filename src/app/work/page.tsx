@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useThemeContext } from "../components/ThemeProvider";
 
 interface Project {
@@ -9,53 +10,64 @@ interface Project {
   description: string;
   tags: string[];
   link?: string;
+  image?: string;
 }
 
 const projects: Project[] = [
   {
+    id: "story-buddy",
+    title: "Story Buddy",
+    description: "A collaborative AI storytelling tool that guides learners one sentence at a time.",
+    tags: ["Education", "Digital Teaching", "AI", "Code"],
+    image: "/images/projects/story-buddy.png",
+    link: "jimmynicholas.com/work/story-buddy",
+  },
+  {
     id: "e-scooter-safety-course",
     title: "E-Scooter Safety Course",
-    description:
-      "A plan for a digital safety course for e-scooter riders.",
-    tags: ["Education", "Digital Teaching", "Code"],
+    description: "A plan for a digital safety course for e-scooter riders.",
+    tags: ["Education", "Digital Teaching"],
+    image: "/images/projects/e-scooter_safety.png",
     link: "jimmynicholas.com/work/e-scooter-safety-course",
   },
   {
-    id: "portfolio-vaporwave",
-    title: "Portfolio Site with Vaporwave Effects",
-    description:
-      "Experimental portfolio featuring CRT scanlines, film grain, and chromatic aberration effects. Includes business/creative mode toggle with dynamic theme switching.",
-    tags: ["Code", "React", "TypeScript", "Next.js", "CSS", "SVG Filters"],
-    link: "jimmynicholas.com",
+    id: "gamification-elearning",
+    title: "Gamification in the Classroom",
+    description: "A fully interactive eLearning module exploring the Caillois framework through hands-on game experiences. Built with xAPI tracking and LMS integration.",
+    tags: ["Education", "Digital Teaching", "Code", "TypeScript", "React", "Next.js"],
+    image: "/images/projects/gamification-classroom.png",
+    link: "gamification-module-sepia.vercel.app",
+  },
+  {
+    id: "gamification-proposal",
+    title: "Gamification in the Classroom – Design Proposal",
+    description: "A blended learning design proposal for Australian ELICOS teachers, covering needs analysis, audience personas, learning objectives, and curriculum design grounded in Action Mapping.",
+    tags: ["Education", "Digital Teaching", "Action Mapping", "Bloom's Taxonomy"],
+    image: "/images/projects/design-proposal.png",
+    link: "jimmynicholas.com/work/gamification-proposal",
   },
   {
     id: "tone-clock",
     title: "Tone Clock",
     description: "A clock that uses the time to play the circle of fifths.",
     tags: ["Code", "Music", "React", "TypeScript", "Next.js", "Tone JS"],
+    image: "/images/projects/tone-clock.png",
     link: "jimmynicholas.github.io/tone-clock",
-  },
-  {
-    id: "impact-db",
-    title: "Impact DB",
-    description:
-      "A full-stack database that extends Impact English College's paper-based system.",
-    tags: ["Code", "Education", "TypeScript", "React", "Django"],
-    link: "github.com/jimmyNicholas/impact_db",
   },
   {
     id: "annoying-piano",
     title: "The Annoying Piano",
     description: "A piano that evolves as you play.",
     tags: ["Code", "Music", "React", "TypeScript", "Next.js", "Tone JS"],
+    image: "/images/projects/annoying-piano.png",
     link: "annoying-piano.vercel.app",
   },
   {
     id: "vocab-finder",
     title: "Vocab Finder",
-    description:
-      "A tool that helps ESL teachers quickly find information on lists of vocabulary words.",
-    tags: ["Code", "Education", "JavaScript", "CSS", "HTML", "Figma"],
+    description: "A tool that helps ESL teachers quickly find information on lists of vocabulary words.",
+    tags: ["Education", "Code", "JavaScript", "CSS", "HTML", "Figma"],
+    image: "/images/projects/vocab-finder.png",
     link: "vocabfinder.jimmynicholas.com",
   },
 ];
@@ -78,6 +90,9 @@ const techAbbreviations: Record<string, string> = {
   Animation: "Anim",
   "Creative Coding": "Creative",
   "Terminal UI": "Term",
+  AI: "AI",
+  "Action Mapping": "Action Mapping",
+  "Bloom's Taxonomy": "Bloom's Taxonomy",
 };
 
 type CategoryFilter = "all" | "code" | "music" | "education";
@@ -91,6 +106,14 @@ const CATEGORIES: { value: CategoryFilter; label: string }[] = [
 const WorkPage = () => {
   const { isBusinessMode } = useThemeContext();
   const [category, setCategory] = useState<CategoryFilter>("all");
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'education' || hash === 'code' || hash === 'music') {
+      setCategory(hash as CategoryFilter);
+    }
+  }, []);
+
   const filteredProjects = projects.filter((p) => {
     if (category === "all") return true;
     return p.tags.some((t) => t.toLowerCase() === category);
@@ -110,27 +133,51 @@ const WorkPage = () => {
     });
 
     return (
-      <motion.div
-        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 min-h-[350px] ${
-          !isBusinessMode ? "crt-scanlines" : ""
-        } p-6 h-64 flex flex-col`}
-        style={getCardStyle()}
-        whileHover={{ scale: 1.01 }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+      <a
+        href={project.link ? `https://${project.link}` : undefined}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`group block ${!project.link ? "pointer-events-none" : ""}`}
       >
-        <div className="space-y-4 flex-1 flex flex-col">
+        <motion.div
+          className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 ${
+            !isBusinessMode ? "crt-scanlines" : ""
+          } p-6 flex flex-col cursor-pointer`}
+          style={getCardStyle()}
+          whileHover={{ scale: 1.01 }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           {/* Title */}
-          <div className="font-mono font-bold text-themed text-base">
+          <h3 className="font-mono font-bold text-themed text-base mb-4">
             {project.title}
+          </h3>
+
+          {/* Image Frame with Hover Overlay */}
+          <div className="relative h-[200px] mb-4 rounded-xl overflow-hidden bg-black border-2 border-[color:var(--palette-secondary)]">
+            <div className="w-full h-full p-3">
+            {project.image && (
+              <Image
+                src={project.image}
+                alt={project.title}
+                width={400}
+                height={200}
+                className="w-full h-full object-contain transition-transform duration-300"
+              />
+            )}
+            </div>
+
+            {/* Dark Overlay with Description and Tags */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-300 flex items-center justify-center p-4">
+              <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-300 text-center">
+                <p className="text-white mb-3 text-sm md:text-base font-mono">
+                  {project.description}
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Description */}
-          <div className="text-accent text-sm leading-relaxed flex-1">
-            {project.description.split(".")[0] + "."}
-          </div>
-
-          {/* Tags */}
+          {/* Tags Below Image */}
           <div className="flex flex-wrap gap-2">
             {project.tags.map((tag) => (
               <span
@@ -141,36 +188,14 @@ const WorkPage = () => {
               </span>
             ))}
           </div>
-
-          {/* Link */}
-          <div className="mt-auto">
-            {project.link ? (
-              <a
-                href={`https://${project.link}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent text-sm hover:text-secondary transition-colors font-mono break-all"
-                style={{
-                  wordBreak: 'break-all',
-                  overflowWrap: 'break-word',
-                  maxWidth: '100%',
-                  display: 'block'
-                }}
-              >
-                {project.link}
-              </a>
-            ) : (
-              <div className="text-muted text-sm font-mono">Coming soon...</div>
-            )}
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </a>
     );
   };
 
   const ProjectGrid = () => (
     <div
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 border-2 p-8 rounded-3xl"
+      className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 border-2 p-8 rounded-3xl"
       style={{
         backgroundColor:
           "color-mix(in srgb, var(--palette-background) 30%, black 70%)",
