@@ -50,11 +50,11 @@ export default function StoryBuddyPage() {
               className="block p-4 rounded-2xl border-2 border-primary text-center font-mono text-themed hover:bg-[color:var(--palette-primary)]/10 transition-colors"
             >
               View rebuild (in progress)
+              <p className="text-xs text-center text-muted">(Requires login)</p>
             </a>
-            <p className="text-xs text-accent text-center">Requires login</p>
-          </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

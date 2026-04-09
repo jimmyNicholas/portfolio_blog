@@ -14,7 +14,7 @@ export default function EScooterSafetyCoursePage() {
         className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-5"
         style={{
           backgroundColor:
-            "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+          "color-mix(in srgb, var(--palette-background) 95%, var(--palette-secondary) 5%)",
         }}
       >
 

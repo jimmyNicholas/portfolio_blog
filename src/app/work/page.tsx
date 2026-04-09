@@ -124,12 +124,12 @@ const WorkPage = () => {
 
     const getCardStyle = () => ({
       backgroundColor: isHovered
-        ? "color-mix(in srgb, var(--palette-secondary) 20%, var(--palette-background) 80%)"
-        : "var(--palette-background)",
+        ? "var(--palette-background)"
+        : "color-mix(in srgb, var(--palette-primary) 20%, var(--palette-background) 80%)",
       fontFamily: "monospace",
       boxShadow: isHovered
-        ? "0 0 30px color-mix(in srgb, var(--palette-primary) 80%, transparent)"
-        : "0 0 20px color-mix(in srgb, var(--palette-secondary) 20%, transparent)",
+        ? "0 0 30px color-mix(in srgb, var(--palette-background) 80%, transparent)"
+        : "0 0 20px color-mix(in srgb, var(--palette-primary) 20%, transparent)",
     });
 
     return (
@@ -182,7 +182,7 @@ const WorkPage = () => {
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-accent"
+                className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-themed"
               >
                 {techAbbreviations[tag] || tag}
               </span>
@@ -198,7 +198,7 @@ const WorkPage = () => {
       className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 border-2 p-8 rounded-3xl"
       style={{
         backgroundColor:
-          "color-mix(in srgb, var(--palette-background) 30%, black 70%)",
+          "color-mix(in srgb, var(--palette-accent) 60%, var(--palette-background) 40%)",
       }}
     >
       {filteredProjects.map((project) => (
@@ -221,8 +221,8 @@ const WorkPage = () => {
             onClick={() => setCategory(value)}
             className={`px-4 py-2 rounded-full text-sm font-mono border transition-colors ${
               category === value
-                ? "border-primary bg-[color:var(--palette-primary)]/10 text-primary"
-                : "border-primary text-accent hover:bg-[color:var(--palette-primary)]/20"
+                ? "border-primary bg-[color:var(--palette-secondary)]/40 text-themed"
+                : "border-primary text-themed hover:bg-[color:var(--palette-secondary)]/20"
             }`}
           >
             {label}

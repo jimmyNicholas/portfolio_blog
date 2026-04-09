@@ -34,12 +34,20 @@
   }
 
   .text-muted {
-    color: var(--palette-accent);
+    color: var(--palette-text-muted);
+  }
+
+  .text-success {
+    color: var(--palette-success);
   }
 
   /* Theme-aware backgrounds */
   .bg-themed {
     background-color: var(--palette-background);
+  }
+
+  .bg-alt {
+    background-color: var(--palette-background-alt);
   }
 
   .bg-accent {
@@ -48,7 +56,7 @@
 
   /* Theme-aware borders */
   .border-themed {
-    border-color: var(--palette-text);
+    border-color: var(--palette-border);
   }
 
   .border-accent {
@@ -57,6 +65,10 @@
 
   .border-secondary {
     border-color: var(--palette-secondary);
+  }
+
+  .border-primary {
+    border-color: var(--palette-primary);
   }
 
   /* Theme-aware effects */
@@ -98,13 +110,6 @@
 
   [data-style="business"] .themed-filter {
     filter: none;
-  }
-
-  /* Theme mode specific overrides */
-  [data-theme="light"][data-style="business"] .themed-tag {
-    background-color: #f5f5f5;
-    color: #333333;
-    border: 1px solid #e0e0e0;
   }
 
   /* Scanlines effect */
