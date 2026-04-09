@@ -15,22 +15,6 @@ interface Project {
 
 const projects: Project[] = [
   {
-    id: "story-buddy",
-    title: "Story Buddy",
-    description: "A collaborative AI storytelling tool that guides learners one sentence at a time.",
-    tags: ["Education", "Digital Teaching", "AI", "Code"],
-    image: "/images/projects/story-buddy.png",
-    link: "jimmynicholas.com/work/story-buddy",
-  },
-  {
-    id: "e-scooter-safety-course",
-    title: "E-Scooter Safety Course",
-    description: "A plan for a digital safety course for e-scooter riders.",
-    tags: ["Education", "Digital Teaching"],
-    image: "/images/projects/e-scooter_safety.png",
-    link: "jimmynicholas.com/work/e-scooter-safety-course",
-  },
-  {
     id: "gamification-elearning",
     title: "Gamification in the Classroom",
     description: "A fully interactive eLearning module exploring the Caillois framework through hands-on game experiences. Built with xAPI tracking and LMS integration.",
@@ -45,6 +29,22 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching", "Action Mapping", "Bloom's Taxonomy"],
     image: "/images/projects/design-proposal.png",
     link: "jimmynicholas.com/work/gamification-proposal",
+  },
+  {
+    id: "story-buddy",
+    title: "Story Buddy",
+    description: "A collaborative AI storytelling tool that guides learners one sentence at a time.",
+    tags: ["Education", "Digital Teaching", "AI", "Code"],
+    image: "/images/projects/story-buddy.png",
+    link: "jimmynicholas.com/work/story-buddy",
+  },
+  {
+    id: "e-scooter-safety-course",
+    title: "E-Scooter Safety Course",
+    description: "A plan for a digital safety course for e-scooter riders.",
+    tags: ["Education", "Digital Teaching"],
+    image: "/images/projects/e-scooter_safety.png",
+    link: "jimmynicholas.com/work/e-scooter-safety-course",
   },
   {
     id: "tone-clock",
