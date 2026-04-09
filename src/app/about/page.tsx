@@ -5,7 +5,7 @@ import PageWrapper from "../components/PageWrapper";
 const AboutPage = () => {
   return (
     <PageWrapper>
-      <div className="flex flex-col gap-8 bg-themed/80 py-4 rounded-xl text-lg leading-8">
+      <div className="flex flex-col gap-8 bg-themed/80 py-4 rounded-xl text-lg leading-8 text-themed">
         <p>
           Hey! I&apos;m Jimmy, and I&apos;m an educator, digital learning designer, developer, and musician who likes exploring the boundaries of code,
           sound, and culture.

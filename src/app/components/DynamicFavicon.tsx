@@ -11,9 +11,9 @@ export function DynamicFavicon() {
       // Get the current palette based on theme
       const getPalette = (themeMode: string, styleMode: string) => {
         if (styleMode === "business") {
-          return themeMode === "dark" 
-            ? { primary: "#ffffff", background: "#1a1a1a" }
-            : { primary: "#000000", background: "#ffffff" };
+          return themeMode === "dark"
+            ? { primary: "#6B6BAE", background: "#1a1a1a" }
+            : { primary: "#6B6BAE", background: "#ffffff" };
         }
         // For creative mode, adjust colors based on light/dark
         if (themeMode === "dark") {

@@ -9,7 +9,7 @@ import figure4 from "../images/Figure4.png";
 type Row = { postLabel: string; postContent: React.ReactNode };
 type Section = {
   id: string;
-  postTitle: string;
+  postTitle: string; 
   postRows: Row[];
   callout?: React.ReactNode;
 };
@@ -83,12 +83,12 @@ export default function EditorialCoursePlanClient() {
                       alt={FIGURE_1_ALT}
                       className="w-full h-auto"
                     />
-                    <figcaption className="px-3 py-2 text-[0.75rem] text-accent leading-snug">
+                    <figcaption className="px-3 py-2 text-[0.75rem] text-themed leading-snug">
                       {FIGURE_1_CAPTION}
                       <div className="mt-1">
                         <a
                           href="#figure-1"
-                          className="underline text-accent hover:text-secondary"
+                          className="underline text-muted hover:text-secondary"
                         >
                           See full-size Figure 1 ↓
                         </a>
@@ -186,12 +186,12 @@ postContent: (
                 alt={FIGURE_2_ALT}
                 className="w-full h-auto"
               />
-              <figcaption className="px-3 py-2 text-[0.75rem] text-accent leading-snug">
+              <figcaption className="px-3 py-2 text-[0.75rem] text-themed leading-snug">
                 {FIGURE_2_CAPTION}
                 <div className="mt-1">
                   <a
                     href="#figure-2"
-                    className="underline text-accent hover:text-secondary"
+                    className="underline text-muted hover:text-secondary"
                   >
                     See full-size Figure 2 ↓
                   </a>
@@ -246,7 +246,7 @@ postContent: (
       />
     </div>
 
-    <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+    <figcaption className="px-3 py-2 text-[0.8rem] text-themed leading-snug">
       Nashville Bird Fail! (n.d.). [Video recording]. Retrieved March 2, 2026,
       from{" "}
       <a
@@ -261,7 +261,7 @@ postContent: (
       <div className="mt-1">
         <a
           href="#guess-activity"
-          className="underline text-accent hover:text-secondary text-xs font-mono"
+          className="underline text-muted hover:text-secondary text-xs font-mono"
         >
           Try the full activity with options and reveal ↓
         </a>
@@ -300,13 +300,13 @@ postContent: (
                 alt='Draft screen designs for the "You Can&apos;t Park There!" game.'
                 className="w-full h-auto"
               />
-              <figcaption className="px-3 py-2 text-[0.75rem] text-accent leading-snug">
+              <figcaption className="px-3 py-2 text-[0.75rem] text-themed leading-snug">
                 Figure 4. Draft screen designs for the &quot;You Can&apos;t
                 Park There!&quot; game. Generated using ChatGPT (2026).
                 <div className="mt-1">
                   <a
                     href="#figure-4"
-                    className="underline text-accent hover:text-secondary"
+                    className="underline text-muted hover:text-secondary"
                   >
                     See full-size Figure 4 ↓
                   </a>
@@ -401,14 +401,14 @@ postContent: (
 
   return (
     <div className="space-y-8">
-      <div className="md:grid md:grid-cols-[280px_1fr] md:gap-10">
+      <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-10">
         <nav aria-label="Contents" className="space-y-3">
         {/* Mobile TOC */}
         <div
-          className="md:hidden -mx-2 px-2 pb-1 overflow-x-auto"
+          className="lg:hidden -mx-2 px-2 pb-1 overflow-x-auto"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-max">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 min-w-max">
             {SECTIONS.map((s, i) => (
               <TocLink
                 key={s.id}
@@ -424,7 +424,7 @@ postContent: (
 
         {/* Desktop TOC */}
         <div
-          className="hidden md:block border-2 border-secondary rounded-3xl p-4"
+          className="hidden lg:block border-2 border-secondary rounded-3xl p-4"
           style={{
             backgroundColor:
               "color-mix(in srgb, var(--palette-background) 92%, var(--palette-secondary) 8%)",
@@ -464,7 +464,7 @@ postContent: (
                 className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-6"
                 style={{
                   backgroundColor:
-                    "color-mix(in srgb, var(--palette-background) 88%, var(--palette-secondary) 12%)",
+                    "color-mix(in srgb, var(--palette-background) 95%, var(--palette-secondary) 5%)",
                 }}
               >
                 <header className="flex items-start justify-between gap-6">
@@ -487,12 +487,12 @@ postContent: (
                   {section.postRows.map((row) => (
                     <div
                       key={row.postLabel}
-                      className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-2 lg:gap-6"
+                      className="grid grid-cols-1 xl:grid-cols-[180px_1fr] gap-2 xl:gap-6"
                     >
-                      <div className="font-mono text-accent font-bold">
+                      <div className="font-mono text-primary font-bold">
                         {row.postLabel}
                       </div>
-                      <div className="text-accent leading-relaxed mb-2">
+                      <div className="text-[var(--palette-text)] leading-relaxed mb-2">
                         {row.postContent}
                       </div>
                     </div>
@@ -527,12 +527,12 @@ postContent: (
               alt={FIGURE_1_ALT}
               className="w-full h-auto"
             />
-            <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+            <figcaption className="px-3 py-2 text-[0.8rem] text-themed leading-snug">
               {FIGURE_1_HOVER_TEXT}
               <div className="mt-1">
                 <a
                   href="#context"
-                  className="underline text-accent hover:text-secondary text-xs font-mono"
+                  className="underline text-muted hover:text-secondary text-xs font-mono"
                 >
                   Back to Context ↑
                 </a>
@@ -559,12 +559,12 @@ postContent: (
               alt={FIGURE_2_ALT}
               className="w-full h-auto"
             />
-            <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+            <figcaption className="px-3 py-2 text-[0.8rem] text-themed leading-snug">
               {FIGURE_2_CAPTION}
               <div className="mt-1">
                 <a
                   href="#communication"
-                  className="underline text-accent hover:text-secondary text-xs font-mono"
+                  className="underline text-muted hover:text-secondary text-xs font-mono"
                 >
                   Back to Communication ↑
                 </a>
@@ -604,25 +604,25 @@ postContent: (
               <div className="space-y-2">
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-white hover:bg-primary/10 text-themed transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-themed hover:bg-primary/10 text-themed transition-colors"
                 >
                   1. She hits a parked car
                 </button>
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-white hover:bg-primary/10 text-themed transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-themed hover:bg-primary/10 text-themed transition-colors"
                 >
                   2. She falls over in traffic
                 </button>
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-white hover:bg-primary/10 text-themed transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-themed hover:bg-primary/10 text-themed transition-colors"
                 >
                   3. She gets hit by a bird
                 </button>
                 <button
                   type="button"
-                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-white hover:bg-primary/10 text-themed transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-full border border-secondary bg-themed hover:bg-primary/10 text-themed transition-colors"
                 >
                   4. The police stop her
                 </button>
@@ -644,7 +644,7 @@ postContent: (
           <div className="text-left mt-2">
             <a
               href="#practice"
-              className="underline text-accent hover:text-secondary text-xs font-mono"
+              className="underline text-muted hover:text-secondary text-xs font-mono"
             >
               Back to Practice ↑
             </a>
@@ -667,13 +667,13 @@ postContent: (
               alt='Draft screen designs for the "You Can&apos;t Park There!" game.'
               className="w-full h-auto"
             />
-            <figcaption className="px-3 py-2 text-[0.8rem] text-accent leading-snug">
+            <figcaption className="px-3 py-2 text-[0.8rem] text-themed leading-snug">
               Figure 4. Draft screen designs for the &quot;You Can&apos;t Park
               There!&quot; game. Generated using ChatGPT (2026).
               <div className="mt-1">
                 <a
                   href="#practice"
-                  className="underline text-accent hover:text-secondary text-xs font-mono"
+                  className="underline text-muted hover:text-secondary text-xs font-mono"
                 >
                   Back to Practice ↑
                 </a>

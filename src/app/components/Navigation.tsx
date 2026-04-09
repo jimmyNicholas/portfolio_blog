@@ -31,26 +31,26 @@ const Navigation: React.FC<NavigationProps> = ({
       if (isDarkMode) {
         return {
           backgroundColor: isSelected
-            ? "#333333"
+            ? "var(--palette-accent)"
             : isHovered
-            ? "#404040"
-            : "#1a1a1a",
-          color: isSelected ? "#ffffff" : isHovered ? "#ffffff" : "#ffffff",
-          borderColor: "#cccccc",
+            ? "color-mix(in srgb, var(--palette-accent) 60%, var(--palette-background) 40%)"
+            : "var(--palette-background)",
+          color: isSelected ? "#ffffff" : isHovered ? "#ffffff" : "var(--palette-text)",
+          borderColor: "var(--palette-accent)",
           boxShadow: isSelected
-            ? "inset 0 2px 4px rgba(255,255,255,0.1)"
+            ? "inset 0 2px 4px color-mix(in srgb, var(--palette-accent) 20%, transparent 80%)"
             : "none",
         };
       } else {
         return {
           backgroundColor: isSelected
-            ? "#f0f0f0"
+            ? "var(--palette-accent)"
             : isHovered
-            ? "#f5f5f5"
-            : "#ffffff",
-          color: "#000000",
-          borderColor: "#000000",
-          boxShadow: isSelected ? "inset 0 2px 4px rgba(0,0,0,0.1)" : "none",
+            ? "color-mix(in srgb, var(--palette-accent) 20%, var(--palette-background) 80%)"
+            : "var(--palette-background)",
+          color: isSelected ? "#ffffff" : "var(--palette-text)",
+          borderColor: "var(--palette-accent)",
+          boxShadow: isSelected ? "inset 0 2px 4px color-mix(in srgb, var(--palette-accent) 20%, transparent 80%)" : "none",
         };
       }
     }

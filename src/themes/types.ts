@@ -44,6 +44,11 @@ export interface ColorPalette {
   accent: string;
   background: string;
   text: string;
+  // Extended palette properties
+  backgroundAlt?: string;
+  textMuted?: string;
+  success?: string;
+  border?: string;
 }
 
 export interface EffectStyles {

@@ -5,7 +5,7 @@ import { createFractalNoise, createSVGFilter } from "../themes/helpers";
 
 export function useTheme() {
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
-  const [styleMode, setStyleMode] = useState<StyleMode>("creative");
+  const [styleMode, setStyleMode] = useState<StyleMode>("business");
 
   const palette = useMemo(() => getPalette(themeMode, styleMode), [themeMode, styleMode]);
   const effectsEnabled = useMemo(() => getEffectsEnabled(styleMode), [styleMode]);
@@ -24,6 +24,12 @@ export function useTheme() {
     root.style.setProperty('--palette-accent', palette.accent);
     root.style.setProperty('--palette-background', palette.background);
     root.style.setProperty('--palette-text', palette.text);
+
+    // Set extended palette properties with fallbacks
+    root.style.setProperty('--palette-background-alt', palette.backgroundAlt || palette.background);
+    root.style.setProperty('--palette-text-muted', palette.textMuted || palette.text);
+    root.style.setProperty('--palette-success', palette.success || palette.accent);
+    root.style.setProperty('--palette-border', palette.border || palette.secondary);
     
     // Set effect properties
     root.style.setProperty('--effects-enabled', effectsEnabled ? '1' : '0');
@@ -64,9 +70,10 @@ export function useTheme() {
         position: "absolute",
         top: 0, left: 0, right: 0, bottom: 0,
         pointerEvents: "none",
-        opacity: 1.0, 
+        opacity: 1.0,
         backgroundImage: subtleNoise,
         mixBlendMode: "overlay",
+        zIndex: 1,
       }
     };
   }, [effectsEnabled]);
