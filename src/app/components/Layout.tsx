@@ -35,7 +35,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         >
           {/* Hidden h1 for accessibility - the visible title is in Navigation */}
           <h1 className="sr-only">Jimmy Nicholas - Developer, Educator, and Musician</h1>
-          
+
           <Navigation
             isBusinessMode={isBusinessMode}
             isDarkMode={isDarkMode}

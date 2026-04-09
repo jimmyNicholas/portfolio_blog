@@ -78,7 +78,7 @@
 
   /* Style mode overrides using data attributes */
   [data-style="business"] .themed-filter {
-    filter: none;
+    filter: sepia(0) saturate(1); /* Identity filter that creates containing block for fixed elements without visual changes */
   }
 
   .themed-glow {
@@ -109,7 +109,7 @@
   }
 
   [data-style="business"] .themed-filter {
-    filter: none;
+    filter: sepia(0) saturate(1);
   }
 
   /* Scanlines effect */
