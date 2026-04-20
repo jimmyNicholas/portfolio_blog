@@ -17,12 +17,6 @@ export const palettes = {
     border: "#5e4d89", // Medium purple border
   },
   businessLight: {
-    // name: "Business Light",
-    // primary: "#6B6BAE",
-    // secondary: "#333333",
-    // accent: "#6B6BAE",
-    // background: "#ffffff",
-    // text: "#1a1a1a",
     name: "Bold Executive Light",
     primary: "#8B5CF6",        // Vivid purple
     secondary: "#14B8A6",      // Vivid teal
@@ -35,12 +29,6 @@ export const palettes = {
     border: "#E5E7EB",        // Light grey border
   },
   businessDark: {
-    // name: "Business Dark",
-    // primary: "#6B6BAE",
-    // secondary: "#e0e0e0",
-    // accent: "#6B6BAE",
-    // background: "#1a1a1a",
-    // text: "#f0f0f0",
     name: "Bold Executive Dark",
     primary: "#A78BFA",        // Bright purple
     secondary: "#5EEAD4",      // Bright teal

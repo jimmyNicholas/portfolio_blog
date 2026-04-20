@@ -31,6 +31,14 @@ const projects: Project[] = [
     link: "jimmynicholas.com/work/gamification-proposal",
   },
   {
+    id: "dining-facilities-at-work",
+    title: "Dining Facilities at Work",
+    description: "A quick Rise 360 course on dining facility compliance though interactive scenarios and quizzes.",
+    tags: ["Education", "Digital Teaching", "RISE 360"],
+    image: "/images/projects/dining-facilities.png",
+    link: "jimmynicholas.com/work/dining-facilities-at-work",
+  },
+  {
     id: "story-buddy",
     title: "Story Buddy",
     description: "A collaborative AI storytelling tool that guides learners one sentence at a time.",
