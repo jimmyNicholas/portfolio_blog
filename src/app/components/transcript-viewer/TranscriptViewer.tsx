@@ -10,7 +10,7 @@ import type {
 
 const DATASET_ORDER: Dataset[] = ["creatives", "scientists", "workforce"];
 const DATASET_LABELS: Record<Dataset, string> = {
-  creatives: "Creatives",
+  creatives: "Creative",
   scientists: "Scientist",
   workforce: "Workforce",
 };
