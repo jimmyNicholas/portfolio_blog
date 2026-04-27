@@ -182,6 +182,50 @@ export default function TranscriptViewer() {
     });
   }, [payload, searchTerms, selectedDatasets]);
 
+  const sidebarStats = useMemo(() => {
+    const totalConversations = filteredConversations.length;
+    const datasetCounts: Record<Dataset, number> = {
+      creatives: 0,
+      scientists: 0,
+      workforce: 0,
+    };
+    let aiMessages = 0;
+    let userMessages = 0;
+    let totalMessages = 0;
+
+    for (const conversation of filteredConversations) {
+      datasetCounts[conversation.dataset] += 1;
+
+      const ai = conversation.speakerCounts.ai ?? 0;
+      const user = conversation.speakerCounts.user ?? 0;
+      const other = conversation.speakerCounts.other ?? 0;
+
+      aiMessages += ai;
+      userMessages += user;
+      totalMessages += ai + user + other;
+    }
+
+    const pct = (count: number, total: number) =>
+      total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
+
+    return {
+      totalConversations,
+      datasetCounts,
+      aiMessages,
+      userMessages,
+      totalMessages,
+      datasetPct: {
+        creatives: pct(datasetCounts.creatives, totalConversations),
+        scientists: pct(datasetCounts.scientists, totalConversations),
+        workforce: pct(datasetCounts.workforce, totalConversations),
+      },
+      speakerPct: {
+        ai: pct(aiMessages, totalMessages),
+        user: pct(userMessages, totalMessages),
+      },
+    };
+  }, [filteredConversations]);
+
   useEffect(() => {
     if (!filteredConversations.length) {
       setSelectedId("");
@@ -395,10 +439,24 @@ export default function TranscriptViewer() {
             </div>
           </div>
 
-          <p className="text-xs text-secondary mb-2">
-            {filteredConversations.length} conversations
-          </p>
-          <div className="overflow-y-auto space-y-2 flex-1 min-h-0">
+          <div className="text-xs text-secondary mb-2 space-y-1">
+            <p>{sidebarStats.totalConversations} conversations</p>
+            <p>
+              Creatives: {sidebarStats.datasetCounts.creatives} ({sidebarStats.datasetPct.creatives}%)
+              {" · "}
+              Scientist: {sidebarStats.datasetCounts.scientists} ({sidebarStats.datasetPct.scientists}%)
+              {" · "}
+              Workforce: {sidebarStats.datasetCounts.workforce} ({sidebarStats.datasetPct.workforce}%)
+            </p>
+            <p>
+              AI: {sidebarStats.aiMessages} ({sidebarStats.speakerPct.ai}%)
+              {" · "}
+              USER: {sidebarStats.userMessages} ({sidebarStats.speakerPct.user}%)
+              {" · "}
+              Total entries: {sidebarStats.totalMessages}
+            </p>
+          </div>
+          <div className="overflow-y-auto space-y-2 flex-1 min-h-0 max-h-[45vh] xl:max-h-none">
             {filteredConversations.map((conversation) => (
               <button
                 key={conversation.id}
@@ -410,7 +468,7 @@ export default function TranscriptViewer() {
                     : "border-secondary hover:border-primary/60"
                 }`}
               >
-                <p className="font-mono text-sm text-themed">{conversation.id}</p>
+                <p className="font-mono text-sm text-themed break-all">{conversation.id}</p>
                 <p className="text-xs text-secondary">
                   {DATASET_LABELS[conversation.dataset]} · {conversation.messageCount} msgs
                 </p>
@@ -419,10 +477,10 @@ export default function TranscriptViewer() {
           </div>
         </aside>
 
-        <main className="border-2 border-secondary rounded-2xl p-4 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
+        <main className="border-2 border-secondary rounded-2xl p-4 flex flex-col min-h-[50vh] xl:min-h-0 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
             <div>
-              <h2 className="font-mono font-bold text-themed mb-1">
+              <h2 className="font-mono font-bold text-themed mb-1 break-all">
                 {selectedConversation?.id ?? "No conversation selected"}
               </h2>
               <p className="text-xs text-secondary">
@@ -431,12 +489,12 @@ export default function TranscriptViewer() {
                   : "Adjust filters to find a conversation."}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={copyTranscript}
                 disabled={!selectedConversation}
-                className="rounded-lg border border-secondary px-3 py-1.5 text-xs disabled:opacity-50"
+                className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3 disabled:opacity-50"
               >
                 Copy
               </button>
@@ -444,7 +502,7 @@ export default function TranscriptViewer() {
                 type="button"
                 onClick={shareTranscript}
                 disabled={!selectedConversation}
-                className="rounded-lg border border-secondary px-3 py-1.5 text-xs disabled:opacity-50"
+                className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3 disabled:opacity-50"
               >
                 Share
               </button>
