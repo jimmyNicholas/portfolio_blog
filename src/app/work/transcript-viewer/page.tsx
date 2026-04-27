@@ -11,7 +11,7 @@ export default function TranscriptViewerPage() {
           </h1>
           <p className="text-sm text-secondary mt-1">
             Browse interview transcripts with searchable, filterable AI/User
-            separation. <a href="https://www.anthropic.com/research/anthropic-interviewer" target="_blank" rel="noopener noreferrer">MORE INFOR AT THIS LINK</a>
+            separation. <a href="https://www.anthropic.com/research/anthropic-interviewer" target="_blank" rel="noopener noreferrer">MORE INFO AT THIS LINK</a>
           </p>
         </header>
         <TranscriptViewer />
