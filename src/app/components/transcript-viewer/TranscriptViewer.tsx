@@ -25,6 +25,14 @@ type SearchTerms = {
   not: string;
 };
 
+type StatsViewMode = "text" | "pie";
+
+type PieSegment = {
+  label: string;
+  value: number;
+  color: string;
+};
+
 function getPositiveTerms(searchTerms: SearchTerms) {
   const terms: string[] = [];
 
@@ -125,6 +133,106 @@ const messageStyleBySpeaker: Record<Speaker, string> = {
   other: "border-secondary bg-[color:var(--palette-background)]/30",
 };
 
+function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: number) {
+  const angleRad = ((angleDeg - 90) * Math.PI) / 180;
+  return {
+    x: cx + radius * Math.cos(angleRad),
+    y: cy + radius * Math.sin(angleRad),
+  };
+}
+
+function describePieSlice(
+  cx: number,
+  cy: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y} Z`;
+}
+
+function StatsPie({
+  title,
+  total,
+  segments,
+}: {
+  title: string;
+  total: number;
+  segments: PieSegment[];
+}) {
+  const size = 104;
+  const center = size / 2;
+  const radius = 42;
+
+  let runningAngle = 0;
+  const slices = segments
+    .filter((segment) => segment.value > 0)
+    .map((segment) => {
+      const angle = total > 0 ? (segment.value / total) * 360 : 0;
+      const startAngle = runningAngle;
+      const endAngle = runningAngle + angle;
+      runningAngle = endAngle;
+      return {
+        ...segment,
+        path: describePieSlice(center, center, radius, startAngle, endAngle),
+      };
+    });
+
+  const pct = (value: number) =>
+    total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+
+  return (
+    <div className="rounded-xl border border-secondary p-2">
+      <p className="text-xs font-semibold text-themed mb-2">{title}</p>
+      <div className="flex items-center gap-3">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+          <circle
+            cx={center}
+            cy={center}
+            r={radius}
+            fill="none"
+            stroke="color-mix(in srgb, var(--palette-secondary) 45%, transparent)"
+            strokeWidth="1.5"
+          />
+          {slices.map((slice) => (
+            <path key={slice.label} d={slice.path} fill={slice.color} />
+          ))}
+          <circle
+            cx={center}
+            cy={center}
+            r={20}
+            fill="color-mix(in srgb, var(--palette-background) 90%, transparent)"
+          />
+          <text
+            x={center}
+            y={center + 4}
+            textAnchor="middle"
+            className="fill-current text-[10px] text-themed"
+            style={{ fontSize: "10px" }}
+          >
+            {total}
+          </text>
+        </svg>
+
+        <div className="flex-1 min-w-0 space-y-1 text-[11px]">
+          {segments.map((segment) => (
+            <p key={segment.label} className="text-secondary break-words">
+              <span
+                className="inline-block w-2 h-2 rounded-full mr-1"
+                style={{ backgroundColor: segment.color }}
+              />
+              {segment.label}: {segment.value} ({pct(segment.value)}%)
+            </p>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TranscriptViewer() {
   const [payload, setPayload] = useState<TranscriptPayload | null>(null);
   const [selectedDatasets, setSelectedDatasets] = useState<Set<Dataset>>(
@@ -140,6 +248,7 @@ export default function TranscriptViewer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState("");
+  const [statsViewMode, setStatsViewMode] = useState<StatsViewMode>("text");
   const matchRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
   const positiveTerms = useMemo(() => getPositiveTerms(searchTerms), [searchTerms]);
@@ -189,42 +298,40 @@ export default function TranscriptViewer() {
       scientists: 0,
       workforce: 0,
     };
-    let aiMessages = 0;
-    let userMessages = 0;
-    let totalMessages = 0;
+    let aiTermHits = 0;
+    let userTermHits = 0;
 
     for (const conversation of filteredConversations) {
       datasetCounts[conversation.dataset] += 1;
-
-      const ai = conversation.speakerCounts.ai ?? 0;
-      const user = conversation.speakerCounts.user ?? 0;
-      const other = conversation.speakerCounts.other ?? 0;
-
-      aiMessages += ai;
-      userMessages += user;
-      totalMessages += ai + user + other;
+      for (const message of conversation.messages) {
+        const termHits = getTextMatchesCount(message.text, positiveTerms);
+        if (termHits === 0) continue;
+        if (message.speaker === "ai") aiTermHits += termHits;
+        if (message.speaker === "user") userTermHits += termHits;
+      }
     }
 
+    const totalEntries = aiTermHits + userTermHits;
     const pct = (count: number, total: number) =>
       total > 0 ? ((count / total) * 100).toFixed(1) : "0.0";
 
     return {
       totalConversations,
       datasetCounts,
-      aiMessages,
-      userMessages,
-      totalMessages,
+      aiTermHits,
+      userTermHits,
+      totalEntries,
       datasetPct: {
         creatives: pct(datasetCounts.creatives, totalConversations),
         scientists: pct(datasetCounts.scientists, totalConversations),
         workforce: pct(datasetCounts.workforce, totalConversations),
       },
       speakerPct: {
-        ai: pct(aiMessages, totalMessages),
-        user: pct(userMessages, totalMessages),
+        ai: pct(aiTermHits, totalEntries),
+        user: pct(userTermHits, totalEntries),
       },
     };
-  }, [filteredConversations]);
+  }, [filteredConversations, positiveTerms]);
 
   useEffect(() => {
     if (!filteredConversations.length) {
@@ -439,22 +546,93 @@ export default function TranscriptViewer() {
             </div>
           </div>
 
-          <div className="text-xs text-secondary mb-2 space-y-1">
-            <p>{sidebarStats.totalConversations} conversations</p>
-            <p>
-              Creatives: {sidebarStats.datasetCounts.creatives} ({sidebarStats.datasetPct.creatives}%)
-              {" · "}
-              Scientist: {sidebarStats.datasetCounts.scientists} ({sidebarStats.datasetPct.scientists}%)
-              {" · "}
-              Workforce: {sidebarStats.datasetCounts.workforce} ({sidebarStats.datasetPct.workforce}%)
-            </p>
-            <p>
-              AI: {sidebarStats.aiMessages} ({sidebarStats.speakerPct.ai}%)
-              {" · "}
-              USER: {sidebarStats.userMessages} ({sidebarStats.speakerPct.user}%)
-              {" · "}
-              Total entries: {sidebarStats.totalMessages}
-            </p>
+          <div className="mb-2">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-xs text-secondary">{sidebarStats.totalConversations} conversations</p>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => setStatsViewMode("text")}
+                  className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
+                    statsViewMode === "text"
+                      ? "border-primary bg-primary/20 text-themed"
+                      : "border-secondary text-secondary"
+                  }`}
+                >
+                  Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStatsViewMode("pie")}
+                  className={`rounded-full border px-2 py-0.5 text-[11px] transition ${
+                    statsViewMode === "pie"
+                      ? "border-primary bg-primary/20 text-themed"
+                      : "border-secondary text-secondary"
+                  }`}
+                >
+                  Pie
+                </button>
+              </div>
+            </div>
+
+            {statsViewMode === "text" ? (
+              <div className="text-xs text-secondary space-y-1">
+                <p>
+                  Creatives: {sidebarStats.datasetCounts.creatives} ({sidebarStats.datasetPct.creatives}%)
+                  {" · "}
+                  Scientist: {sidebarStats.datasetCounts.scientists} ({sidebarStats.datasetPct.scientists}%)
+                  {" · "}
+                  Workforce: {sidebarStats.datasetCounts.workforce} ({sidebarStats.datasetPct.workforce}%)
+                </p>
+                <p>
+                  AI: {sidebarStats.aiTermHits} ({sidebarStats.speakerPct.ai}%)
+                  {" · "}
+                  USER: {sidebarStats.userTermHits} ({sidebarStats.speakerPct.user}%)
+                  {" · "}
+                  Total entries: {sidebarStats.totalEntries}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <StatsPie
+                  title="Dataset split"
+                  total={sidebarStats.totalConversations}
+                  segments={[
+                    {
+                      label: "Creatives",
+                      value: sidebarStats.datasetCounts.creatives,
+                      color: "#22d3ee",
+                    },
+                    {
+                      label: "Scientist",
+                      value: sidebarStats.datasetCounts.scientists,
+                      color: "#a78bfa",
+                    },
+                    {
+                      label: "Workforce",
+                      value: sidebarStats.datasetCounts.workforce,
+                      color: "#34d399",
+                    },
+                  ]}
+                />
+                <StatsPie
+                  title="Speaker term hits"
+                  total={sidebarStats.totalEntries}
+                  segments={[
+                    {
+                      label: "AI",
+                      value: sidebarStats.aiTermHits,
+                      color: "#60a5fa",
+                    },
+                    {
+                      label: "USER",
+                      value: sidebarStats.userTermHits,
+                      color: "#4ade80",
+                    },
+                  ]}
+                />
+              </div>
+            )}
           </div>
           <div className="overflow-y-auto space-y-2 flex-1 min-h-0 max-h-[45vh] xl:max-h-none">
             {filteredConversations.map((conversation) => (
