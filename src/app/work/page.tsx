@@ -159,7 +159,7 @@ const WorkPage = () => {
         <motion.div
           className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 ${
             !isBusinessMode ? "crt-scanlines" : ""
-          } p-6 flex flex-col cursor-pointer`}
+          } p-4 sm:p-5 md:p-6 flex flex-col cursor-pointer`}
           style={getCardStyle()}
           whileHover={{ scale: 1.01 }}
           onMouseEnter={() => setIsHovered(true)}
@@ -185,8 +185,8 @@ const WorkPage = () => {
             </div>
 
             {/* Dark Overlay with Description and Tags */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-300 flex items-center justify-center p-4">
-              <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-300 text-center">
+            <div className="absolute inset-0 bg-black/40 sm:bg-black/0 sm:group-hover:bg-black/70 transition-all duration-300 flex items-center justify-center p-4">
+              <div className="opacity-90 sm:opacity-0 sm:group-hover:opacity-80 transition-opacity duration-300 text-center">
                 <p className="text-white mb-3 text-sm md:text-base font-mono">
                   {project.description}
                 </p>
@@ -212,7 +212,7 @@ const WorkPage = () => {
 
   const ProjectGrid = () => (
     <div
-      className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 border-2 p-8 rounded-3xl"
+      className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-8 border-2 p-4 sm:p-6 md:p-8 rounded-3xl"
       style={{
         backgroundColor:
           "color-mix(in srgb, var(--palette-accent) 60%, var(--palette-background) 40%)",
@@ -226,7 +226,7 @@ const WorkPage = () => {
 
   return (
     <motion.div
-      className="max-w-8xl mx-auto px-8"
+      className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
