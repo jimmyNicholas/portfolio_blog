@@ -33,7 +33,7 @@ const projects: Project[] = [
   {
     id: "dining-facilities-at-work",
     title: "Dining Facilities at Work",
-    description: "A quick Rise 360 course on dining facility compliance though interactive scenarios and quizzes.",
+    description: "A quick Rise 360 course on dining facility compliance through interactive scenarios and quizzes.",
     tags: ["Education", "Digital Teaching", "RISE 360"],
     image: "/images/projects/dining-facilities.png",
     link: "jimmynicholas.com/work/dining-facilities-at-work",
@@ -53,6 +53,15 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching"],
     image: "/images/projects/e-scooter_safety.png",
     link: "jimmynicholas.com/work/e-scooter-safety-course",
+  },
+  {
+    id: "anthropic-interviewer-conversation-viewer",
+    title: "Anthropic Interviewer: Conversation Viewer",
+    description:
+      "Browse interview transcripts with searchable, filterable AI/User separation.",
+    tags: ["Education", "Code"],
+    image: "/images/projects/antropic-interviewer.png",
+    link: "jimmynicholas.com/work/transcript-viewer",
   },
   {
     id: "tone-clock",
