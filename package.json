@@ -7,6 +7,7 @@
     "build": "next build",
     "build:cpanel": "DEPLOY_TARGET=cpanel next build",
     "build:github": "DEPLOY_TARGET=github next build",
+    "transcripts:build": "node scripts/preprocess-transcripts.mjs",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
