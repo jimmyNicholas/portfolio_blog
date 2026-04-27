@@ -33,7 +33,7 @@ const projects: Project[] = [
   {
     id: "dining-facilities-at-work",
     title: "Dining Facilities at Work",
-    description: "A quick Rise 360 course on dining facility compliance though interactive scenarios and quizzes.",
+    description: "A quick Rise 360 course on dining facility compliance through interactive scenarios and quizzes.",
     tags: ["Education", "Digital Teaching", "RISE 360"],
     image: "/images/projects/dining-facilities.png",
     link: "jimmynicholas.com/work/dining-facilities-at-work",
