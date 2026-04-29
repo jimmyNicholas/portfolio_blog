@@ -10,6 +10,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { isBusinessMode, isDarkMode, effectStyles } = useThemeContext();
+  const [isTranscriptFocusMode, setIsTranscriptFocusMode] = React.useState(false);
 
   const isHomePage = pathname === "/";
   const isEmbedRoute = pathname.startsWith("/elicosgamification");
@@ -18,6 +19,23 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     router.prefetch("/about");
     router.prefetch("/work");
   }, [router]);
+
+  React.useEffect(() => {
+    const handleFocusModeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<boolean>;
+      setIsTranscriptFocusMode(Boolean(customEvent.detail));
+    };
+    window.addEventListener(
+      "transcript-viewer-focus-mode-change",
+      handleFocusModeChange as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        "transcript-viewer-focus-mode-change",
+        handleFocusModeChange as EventListener,
+      );
+    };
+  }, []);
 
   if (isEmbedRoute) {
     return (
@@ -35,8 +53,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     >
       {!isBusinessMode && <div style={effectStyles.overlay} />}
 
-      <SocialLinks />
-      <ModeToggle />
+      {!isTranscriptFocusMode && <SocialLinks />}
+      {!isTranscriptFocusMode && <ModeToggle />}
 
       <div className="min-h-full">
         <div
@@ -46,12 +64,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {/* Hidden h1 for accessibility - the visible title is in Navigation */}
           <h1 className="sr-only">Jimmy Nicholas - Developer, Educator, and Musician</h1>
 
-          <Navigation
-            isBusinessMode={isBusinessMode}
-            isDarkMode={isDarkMode}
-            foregroundEffectStyles={effectStyles}
-            isHomePage={isHomePage}
-          />
+          {!isTranscriptFocusMode && (
+            <Navigation
+              isBusinessMode={isBusinessMode}
+              isDarkMode={isDarkMode}
+              foregroundEffectStyles={effectStyles}
+              isHomePage={isHomePage}
+            />
+          )}
 
           {children}
         </div>
