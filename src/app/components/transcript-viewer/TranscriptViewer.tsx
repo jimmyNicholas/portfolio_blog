@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   Dataset,
   TranscriptConversation,
@@ -23,6 +23,15 @@ const DATASET_PREFIX: Record<Dataset, string> = {
 const SELECTED_CHIPS_PER_ROW = 10;
 const SELECTED_CHIPS_PER_PAGE = 20;
 const COPY_SEPARATOR = "\n\n###############################################################\n\n";
+const QUERY_PARAM_KEYS = {
+  and: "and",
+  or: "or",
+  not: "not",
+  datasets: "ds",
+  mode: "mode",
+  selected: "sel",
+  focus: "focus",
+} as const;
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -41,6 +50,73 @@ type PieSegment = {
   value: number;
   color: string;
 };
+
+type ParsedUrlState = {
+  searchTerms: SearchTerms;
+  datasets: Set<Dataset>;
+  mode: StatsViewMode;
+  selectedShorthandIds: string[];
+  focusMode: boolean;
+};
+
+function parseConversationNumericSuffix(conversationId: string) {
+  const numericMatch = conversationId.match(/_(\d+)$/);
+  if (!numericMatch) return null;
+  return Number.parseInt(numericMatch[1], 10);
+}
+
+function toConversationShorthand(conversation: TranscriptConversation) {
+  const prefix = DATASET_PREFIX[conversation.dataset] ?? "?";
+  const suffix = parseConversationNumericSuffix(conversation.id);
+  if (suffix === null) return null;
+  return `${prefix}${suffix}`;
+}
+
+function parseDatasetsFromUrl(rawValue: string | null) {
+  if (!rawValue?.trim()) return new Set(DATASET_ORDER);
+  const next = new Set<Dataset>();
+  for (const token of rawValue.split(",")) {
+    const trimmed = token.trim();
+    if (trimmed === "creatives" || trimmed === "scientists" || trimmed === "workforce") {
+      next.add(trimmed);
+    }
+  }
+  return next.size > 0 ? next : new Set(DATASET_ORDER);
+}
+
+function parseModeFromUrl(rawValue: string | null): StatsViewMode {
+  return rawValue === "pie" ? "pie" : "text";
+}
+
+function parseFocusFromUrl(rawValue: string | null) {
+  return rawValue === "1";
+}
+
+function parseSelectedShorthandFromUrl(rawValue: string | null) {
+  if (!rawValue?.trim()) return [];
+  const unique = new Set<string>();
+  for (const token of rawValue.split(",")) {
+    const normalized = token.trim().toUpperCase();
+    if (!normalized) continue;
+    if (/^[CSW]\d+$/.test(normalized)) unique.add(normalized);
+  }
+  return Array.from(unique);
+}
+
+function parseUrlState(search: string): ParsedUrlState {
+  const params = new URLSearchParams(search);
+  return {
+    searchTerms: {
+      and: params.get(QUERY_PARAM_KEYS.and) ?? "",
+      or: params.get(QUERY_PARAM_KEYS.or) ?? "",
+      not: params.get(QUERY_PARAM_KEYS.not) ?? "",
+    },
+    datasets: parseDatasetsFromUrl(params.get(QUERY_PARAM_KEYS.datasets)),
+    mode: parseModeFromUrl(params.get(QUERY_PARAM_KEYS.mode)),
+    selectedShorthandIds: parseSelectedShorthandFromUrl(params.get(QUERY_PARAM_KEYS.selected)),
+    focusMode: parseFocusFromUrl(params.get(QUERY_PARAM_KEYS.focus)),
+  };
+}
 
 function getPositiveTerms(searchTerms: SearchTerms) {
   const terms: string[] = [];
@@ -242,7 +318,7 @@ function StatsPie({
   );
 }
 
-export default function TranscriptViewer() {
+export default function TranscriptViewer({ focusTopOffset = 96 }: { focusTopOffset?: number }) {
   const [payload, setPayload] = useState<TranscriptPayload | null>(null);
   const [selectedDatasets, setSelectedDatasets] = useState<Set<Dataset>>(
     new Set(DATASET_ORDER),
@@ -261,7 +337,56 @@ export default function TranscriptViewer() {
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([]);
   const [selectedChipPage, setSelectedChipPage] = useState(0);
+  const [isUrlHydrated, setIsUrlHydrated] = useState(false);
+  const [pendingSelectedShorthandIds, setPendingSelectedShorthandIds] = useState<string[]>([]);
   const matchRefs = useRef<Array<HTMLSpanElement | null>>([]);
+
+  const shorthandToFullConversationId = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!payload) return map;
+    for (const conversation of payload.conversations) {
+      const shorthand = toConversationShorthand(conversation);
+      if (shorthand && !map.has(shorthand)) {
+        map.set(shorthand, conversation.id);
+      }
+    }
+    return map;
+  }, [payload]);
+
+  const selectedConversationShorthandIds = useMemo(() => {
+    if (!payload) return [];
+    const conversationsById = new Map<string, TranscriptConversation>();
+    for (const conversation of payload.conversations) {
+      conversationsById.set(conversation.id, conversation);
+    }
+    const values: string[] = [];
+    for (const conversationId of selectedConversationIds) {
+      const conversation = conversationsById.get(conversationId);
+      if (!conversation) continue;
+      const shorthand = toConversationShorthand(conversation);
+      if (shorthand) values.push(shorthand);
+    }
+    return values;
+  }, [payload, selectedConversationIds]);
+
+  const applyParsedUrlState = useCallback(
+    (parsedState: ParsedUrlState) => {
+      setSearchTerms(parsedState.searchTerms);
+      setSelectedDatasets(parsedState.datasets);
+      setStatsViewMode(parsedState.mode);
+      setIsFocusMode(parsedState.focusMode);
+      setPendingSelectedShorthandIds(parsedState.selectedShorthandIds);
+      if (parsedState.selectedShorthandIds.length === 0) {
+        setSelectedConversationIds([]);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    applyParsedUrlState(parseUrlState(window.location.search));
+    setIsUrlHydrated(true);
+  }, [applyParsedUrlState]);
 
   const positiveTerms = useMemo(() => getPositiveTerms(searchTerms), [searchTerms]);
 
@@ -311,6 +436,15 @@ export default function TranscriptViewer() {
     }
     return map;
   }, [payload]);
+
+  useEffect(() => {
+    if (!pendingSelectedShorthandIds.length) return;
+    const resolved = pendingSelectedShorthandIds
+      .map((shorthand) => shorthandToFullConversationId.get(shorthand))
+      .filter((value): value is string => Boolean(value));
+    setSelectedConversationIds(resolved);
+    setPendingSelectedShorthandIds([]);
+  }, [pendingSelectedShorthandIds, shorthandToFullConversationId]);
 
   const sidebarStats = useMemo(() => {
     const totalConversations = filteredConversations.length;
@@ -374,6 +508,50 @@ export default function TranscriptViewer() {
       current.filter((id) => allConversationsById.has(id)),
     );
   }, [allConversationsById]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      applyParsedUrlState(parseUrlState(window.location.search));
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, [applyParsedUrlState]);
+
+  useEffect(() => {
+    if (!isUrlHydrated) return;
+
+    const params = new URLSearchParams();
+    if (searchTerms.and.trim()) params.set(QUERY_PARAM_KEYS.and, searchTerms.and);
+    if (searchTerms.or.trim()) params.set(QUERY_PARAM_KEYS.or, searchTerms.or);
+    if (searchTerms.not.trim()) params.set(QUERY_PARAM_KEYS.not, searchTerms.not);
+
+    const orderedDatasets = DATASET_ORDER.filter((dataset) => selectedDatasets.has(dataset));
+    if (orderedDatasets.length > 0 && orderedDatasets.length < DATASET_ORDER.length) {
+      params.set(QUERY_PARAM_KEYS.datasets, orderedDatasets.join(","));
+    }
+
+    if (statsViewMode !== "text") params.set(QUERY_PARAM_KEYS.mode, statsViewMode);
+    if (selectedConversationShorthandIds.length > 0) {
+      params.set(QUERY_PARAM_KEYS.selected, selectedConversationShorthandIds.join(","));
+    }
+    if (isFocusMode) params.set(QUERY_PARAM_KEYS.focus, "1");
+
+    const query = params.toString();
+    const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(null, "", nextUrl);
+    }
+  }, [
+    isFocusMode,
+    isUrlHydrated,
+    searchTerms,
+    selectedConversationShorthandIds,
+    selectedDatasets,
+    statsViewMode,
+  ]);
 
   const selectedConversations = useMemo(() => {
     return selectedConversationIds
@@ -497,11 +675,9 @@ export default function TranscriptViewer() {
   };
 
   const formatChipLabel = (conversation: TranscriptConversation) => {
+    const shorthand = toConversationShorthand(conversation);
+    if (shorthand) return shorthand;
     const prefix = DATASET_PREFIX[conversation.dataset] ?? "?";
-    const numericMatch = conversation.id.match(/_(\d+)$/);
-    if (numericMatch) {
-      return `${prefix}${Number.parseInt(numericMatch[1], 10)}`;
-    }
     const token = conversation.id.replace(/[^a-zA-Z0-9]/g, "").slice(-2).toUpperCase() || "X1";
     return `${prefix}${token}`;
   };
@@ -522,6 +698,16 @@ export default function TranscriptViewer() {
   const toggleFocusMode = () => {
     setIsFocusMode((current) => !current);
   };
+
+  useEffect(() => {
+    const onToggleRequest = () => {
+      toggleFocusMode();
+    };
+    window.addEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
+    return () => {
+      window.removeEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
+    };
+  }, []);
 
   useEffect(() => {
     window.dispatchEvent(
@@ -552,21 +738,13 @@ export default function TranscriptViewer() {
 
   return (
     <div
+      style={isFocusMode ? { top: `${focusTopOffset}px` } : undefined}
       className={`${
         isFocusMode
-          ? "fixed inset-0 z-[200] h-screen w-screen overflow-auto bg-[color:var(--palette-background)] p-4"
+          ? "fixed inset-x-0 bottom-0 z-[200] overflow-auto bg-[color:var(--palette-background)] p-4"
           : ""
       } space-y-4`}
     >
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={toggleFocusMode}
-          className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3"
-        >
-          {isFocusMode ? "Exit focus mode" : "Focus mode"}
-        </button>
-      </div>
       <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-4 xl:h-[calc(100vh-230px)]">
         <aside className="border-2 border-secondary rounded-2xl p-3 overflow-hidden flex flex-col min-h-0">
           <h2 className="font-mono font-bold text-themed mb-3">Search</h2>
