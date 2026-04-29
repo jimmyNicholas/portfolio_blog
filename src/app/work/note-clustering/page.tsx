@@ -37,22 +37,6 @@ export default function NoteClusteringPage() {
 
   return (
     <div className="max-w-8xl mx-auto px-8 space-y-8">
-      <header
-        className="border-2 border-secondary rounded-3xl p-6 md:p-8 space-y-5"
-        style={{
-          backgroundColor:
-            "color-mix(in srgb, var(--palette-background) 95%, var(--palette-secondary) 5%)",
-        }}
-      >
-        <div className="space-y-2">
-          <h1 className="font-mono font-bold text-themed text-2xl md:text-3xl">
-            Note Clustering
-          </h1>
-          <p className="text-accent leading-relaxed">
-            An interactive canvas for clustering notes into meaningful groups.
-          </p>
-        </div>
-      </header>
       <div
         className="border-2 border-secondary rounded-3xl overflow-hidden"
         style={{
