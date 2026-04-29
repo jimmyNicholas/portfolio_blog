@@ -55,8 +55,16 @@ const projects: Project[] = [
     link: "jimmynicholas.com/work/e-scooter-safety-course",
   },
   {
+    id: "note-clustering",
+    title: "Note Clustering",
+    description: "An interactive canvas for clustering notes into meaningful groups.",
+    tags: ["Code", "Web", "React"],
+    image: "/images/projects/note-clustering.png",
+    link: "jimmynicholas.com/work/note-clustering",
+  },
+  {
     id: "anthropic-interviewer-conversation-viewer",
-    title: "Anthropic Interviewer: Conversation Viewer",
+    title: "Anthropic Interviewer: Transcript Viewer",
     description:
       "Browse interview transcripts with searchable, filterable AI/User separation.",
     tags: ["Education", "Code"],

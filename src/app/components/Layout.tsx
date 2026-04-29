@@ -14,6 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const isHomePage = pathname === "/";
   const isEmbedRoute = pathname.startsWith("/elicosgamification");
+  const shouldHideChrome = isTranscriptFocusMode;
 
   React.useEffect(() => {
     router.prefetch("/about");
@@ -53,8 +54,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     >
       {!isBusinessMode && <div style={effectStyles.overlay} />}
 
-      {!isTranscriptFocusMode && <SocialLinks />}
-      {!isTranscriptFocusMode && <ModeToggle />}
+      {!shouldHideChrome && <SocialLinks />}
+      {!shouldHideChrome && <ModeToggle />}
 
       <div className="min-h-full">
         <div
@@ -64,7 +65,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {/* Hidden h1 for accessibility - the visible title is in Navigation */}
           <h1 className="sr-only">Jimmy Nicholas - Developer, Educator, and Musician</h1>
 
-          {!isTranscriptFocusMode && (
+          {!shouldHideChrome && (
             <Navigation
               isBusinessMode={isBusinessMode}
               isDarkMode={isDarkMode}
