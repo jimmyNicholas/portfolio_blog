@@ -318,7 +318,7 @@ function StatsPie({
   );
 }
 
-export default function TranscriptViewer({ focusTopOffset = 96 }: { focusTopOffset?: number }) {
+export default function TranscriptViewer() {
   const [payload, setPayload] = useState<TranscriptPayload | null>(null);
   const [selectedDatasets, setSelectedDatasets] = useState<Set<Dataset>>(
     new Set(DATASET_ORDER),
@@ -700,16 +700,6 @@ export default function TranscriptViewer({ focusTopOffset = 96 }: { focusTopOffs
   };
 
   useEffect(() => {
-    const onToggleRequest = () => {
-      toggleFocusMode();
-    };
-    window.addEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
-    return () => {
-      window.removeEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
-    };
-  }, []);
-
-  useEffect(() => {
     window.dispatchEvent(
       new CustomEvent<boolean>("transcript-viewer-focus-mode-change", {
         detail: isFocusMode,
@@ -738,13 +728,41 @@ export default function TranscriptViewer({ focusTopOffset = 96 }: { focusTopOffs
 
   return (
     <div
-      style={isFocusMode ? { top: `${focusTopOffset}px` } : undefined}
       className={`${
         isFocusMode
-          ? "fixed inset-x-0 bottom-0 z-[200] overflow-auto bg-[color:var(--palette-background)] p-4"
+          ? "fixed inset-0 z-[200] overflow-auto bg-[color:var(--palette-background)] p-4"
           : ""
       } space-y-4`}
     >
+      <header className="border-2 border-secondary rounded-2xl px-4 py-3 sm:px-6">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="font-mono text-xl sm:text-2xl font-bold text-themed">
+            Anthropic Interviewer: Transcript Viewer
+          </h1>
+          <div className="flex items-center gap-2">
+            <a
+              href="https://www.anthropic.com/research/anthropic-interviewer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3 text-themed"
+            >
+              Dataset Source Link
+            </a>
+            <button
+              type="button"
+              onClick={toggleFocusMode}
+              className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3"
+            >
+              {isFocusMode ? "Exit focus mode" : "Focus mode"}
+            </button>
+          </div>
+        </div>
+        {!isFocusMode ? (
+          <p className="text-sm text-secondary mt-1">
+            Browse interview transcripts with searchable, filterable AI/User separation.
+          </p>
+        ) : null}
+      </header>
       <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-4 xl:h-[calc(100vh-230px)]">
         <aside className="border-2 border-secondary rounded-2xl p-3 overflow-hidden flex flex-col min-h-0">
           <h2 className="font-mono font-bold text-themed mb-3">Search</h2>
