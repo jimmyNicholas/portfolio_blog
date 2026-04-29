@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   Dataset,
+  TranscriptConversation,
   TranscriptMessage,
   Speaker,
   TranscriptPayload,
@@ -14,6 +15,23 @@ const DATASET_LABELS: Record<Dataset, string> = {
   scientists: "Scientist",
   workforce: "Workforce",
 };
+const DATASET_PREFIX: Record<Dataset, string> = {
+  creatives: "C",
+  scientists: "S",
+  workforce: "W",
+};
+const SELECTED_CHIPS_PER_ROW = 10;
+const SELECTED_CHIPS_PER_PAGE = 20;
+const COPY_SEPARATOR = "\n\n###############################################################\n\n";
+const QUERY_PARAM_KEYS = {
+  and: "and",
+  or: "or",
+  not: "not",
+  datasets: "ds",
+  mode: "mode",
+  selected: "sel",
+  focus: "focus",
+} as const;
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -32,6 +50,73 @@ type PieSegment = {
   value: number;
   color: string;
 };
+
+type ParsedUrlState = {
+  searchTerms: SearchTerms;
+  datasets: Set<Dataset>;
+  mode: StatsViewMode;
+  selectedShorthandIds: string[];
+  focusMode: boolean;
+};
+
+function parseConversationNumericSuffix(conversationId: string) {
+  const numericMatch = conversationId.match(/_(\d+)$/);
+  if (!numericMatch) return null;
+  return Number.parseInt(numericMatch[1], 10);
+}
+
+function toConversationShorthand(conversation: TranscriptConversation) {
+  const prefix = DATASET_PREFIX[conversation.dataset] ?? "?";
+  const suffix = parseConversationNumericSuffix(conversation.id);
+  if (suffix === null) return null;
+  return `${prefix}${suffix}`;
+}
+
+function parseDatasetsFromUrl(rawValue: string | null) {
+  if (!rawValue?.trim()) return new Set(DATASET_ORDER);
+  const next = new Set<Dataset>();
+  for (const token of rawValue.split(",")) {
+    const trimmed = token.trim();
+    if (trimmed === "creatives" || trimmed === "scientists" || trimmed === "workforce") {
+      next.add(trimmed);
+    }
+  }
+  return next.size > 0 ? next : new Set(DATASET_ORDER);
+}
+
+function parseModeFromUrl(rawValue: string | null): StatsViewMode {
+  return rawValue === "pie" ? "pie" : "text";
+}
+
+function parseFocusFromUrl(rawValue: string | null) {
+  return rawValue === "1";
+}
+
+function parseSelectedShorthandFromUrl(rawValue: string | null) {
+  if (!rawValue?.trim()) return [];
+  const unique = new Set<string>();
+  for (const token of rawValue.split(",")) {
+    const normalized = token.trim().toUpperCase();
+    if (!normalized) continue;
+    if (/^[CSW]\d+$/.test(normalized)) unique.add(normalized);
+  }
+  return Array.from(unique);
+}
+
+function parseUrlState(search: string): ParsedUrlState {
+  const params = new URLSearchParams(search);
+  return {
+    searchTerms: {
+      and: params.get(QUERY_PARAM_KEYS.and) ?? "",
+      or: params.get(QUERY_PARAM_KEYS.or) ?? "",
+      not: params.get(QUERY_PARAM_KEYS.not) ?? "",
+    },
+    datasets: parseDatasetsFromUrl(params.get(QUERY_PARAM_KEYS.datasets)),
+    mode: parseModeFromUrl(params.get(QUERY_PARAM_KEYS.mode)),
+    selectedShorthandIds: parseSelectedShorthandFromUrl(params.get(QUERY_PARAM_KEYS.selected)),
+    focusMode: parseFocusFromUrl(params.get(QUERY_PARAM_KEYS.focus)),
+  };
+}
 
 function getPositiveTerms(searchTerms: SearchTerms) {
   const terms: string[] = [];
@@ -233,7 +318,7 @@ function StatsPie({
   );
 }
 
-export default function TranscriptViewer() {
+export default function TranscriptViewer({ focusTopOffset = 96 }: { focusTopOffset?: number }) {
   const [payload, setPayload] = useState<TranscriptPayload | null>(null);
   const [selectedDatasets, setSelectedDatasets] = useState<Set<Dataset>>(
     new Set(DATASET_ORDER),
@@ -249,7 +334,59 @@ export default function TranscriptViewer() {
   const [error, setError] = useState<string | null>(null);
   const [actionFeedback, setActionFeedback] = useState("");
   const [statsViewMode, setStatsViewMode] = useState<StatsViewMode>("text");
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([]);
+  const [selectedChipPage, setSelectedChipPage] = useState(0);
+  const [isUrlHydrated, setIsUrlHydrated] = useState(false);
+  const [pendingSelectedShorthandIds, setPendingSelectedShorthandIds] = useState<string[]>([]);
   const matchRefs = useRef<Array<HTMLSpanElement | null>>([]);
+
+  const shorthandToFullConversationId = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!payload) return map;
+    for (const conversation of payload.conversations) {
+      const shorthand = toConversationShorthand(conversation);
+      if (shorthand && !map.has(shorthand)) {
+        map.set(shorthand, conversation.id);
+      }
+    }
+    return map;
+  }, [payload]);
+
+  const selectedConversationShorthandIds = useMemo(() => {
+    if (!payload) return [];
+    const conversationsById = new Map<string, TranscriptConversation>();
+    for (const conversation of payload.conversations) {
+      conversationsById.set(conversation.id, conversation);
+    }
+    const values: string[] = [];
+    for (const conversationId of selectedConversationIds) {
+      const conversation = conversationsById.get(conversationId);
+      if (!conversation) continue;
+      const shorthand = toConversationShorthand(conversation);
+      if (shorthand) values.push(shorthand);
+    }
+    return values;
+  }, [payload, selectedConversationIds]);
+
+  const applyParsedUrlState = useCallback(
+    (parsedState: ParsedUrlState) => {
+      setSearchTerms(parsedState.searchTerms);
+      setSelectedDatasets(parsedState.datasets);
+      setStatsViewMode(parsedState.mode);
+      setIsFocusMode(parsedState.focusMode);
+      setPendingSelectedShorthandIds(parsedState.selectedShorthandIds);
+      if (parsedState.selectedShorthandIds.length === 0) {
+        setSelectedConversationIds([]);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    applyParsedUrlState(parseUrlState(window.location.search));
+    setIsUrlHydrated(true);
+  }, [applyParsedUrlState]);
 
   const positiveTerms = useMemo(() => getPositiveTerms(searchTerms), [searchTerms]);
 
@@ -290,6 +427,24 @@ export default function TranscriptViewer() {
       return evaluateBooleanMatch(searchableConversationText, searchTerms);
     });
   }, [payload, searchTerms, selectedDatasets]);
+
+  const allConversationsById = useMemo(() => {
+    const map = new Map<string, TranscriptConversation>();
+    if (!payload) return map;
+    for (const conversation of payload.conversations) {
+      map.set(conversation.id, conversation);
+    }
+    return map;
+  }, [payload]);
+
+  useEffect(() => {
+    if (!pendingSelectedShorthandIds.length) return;
+    const resolved = pendingSelectedShorthandIds
+      .map((shorthand) => shorthandToFullConversationId.get(shorthand))
+      .filter((value): value is string => Boolean(value));
+    setSelectedConversationIds(resolved);
+    setPendingSelectedShorthandIds([]);
+  }, [pendingSelectedShorthandIds, shorthandToFullConversationId]);
 
   const sidebarStats = useMemo(() => {
     const totalConversations = filteredConversations.length;
@@ -334,20 +489,95 @@ export default function TranscriptViewer() {
   }, [filteredConversations, positiveTerms]);
 
   useEffect(() => {
-    if (!filteredConversations.length) {
+    if (!payload || payload.conversations.length === 0) {
       setSelectedId("");
       return;
     }
-    const stillVisible = filteredConversations.some((item) => item.id === selectedId);
-    if (!stillVisible) {
-      setSelectedId(filteredConversations[0].id);
+    if (!selectedId || !allConversationsById.has(selectedId)) {
+      setSelectedId(filteredConversations[0]?.id ?? payload.conversations[0].id);
     }
-  }, [filteredConversations, selectedId]);
+  }, [allConversationsById, filteredConversations, payload, selectedId]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedId) return null;
-    return filteredConversations.find((item) => item.id === selectedId) ?? null;
-  }, [filteredConversations, selectedId]);
+    return allConversationsById.get(selectedId) ?? null;
+  }, [allConversationsById, selectedId]);
+
+  useEffect(() => {
+    setSelectedConversationIds((current) =>
+      current.filter((id) => allConversationsById.has(id)),
+    );
+  }, [allConversationsById]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      applyParsedUrlState(parseUrlState(window.location.search));
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, [applyParsedUrlState]);
+
+  useEffect(() => {
+    if (!isUrlHydrated) return;
+
+    const params = new URLSearchParams();
+    if (searchTerms.and.trim()) params.set(QUERY_PARAM_KEYS.and, searchTerms.and);
+    if (searchTerms.or.trim()) params.set(QUERY_PARAM_KEYS.or, searchTerms.or);
+    if (searchTerms.not.trim()) params.set(QUERY_PARAM_KEYS.not, searchTerms.not);
+
+    const orderedDatasets = DATASET_ORDER.filter((dataset) => selectedDatasets.has(dataset));
+    if (orderedDatasets.length > 0 && orderedDatasets.length < DATASET_ORDER.length) {
+      params.set(QUERY_PARAM_KEYS.datasets, orderedDatasets.join(","));
+    }
+
+    if (statsViewMode !== "text") params.set(QUERY_PARAM_KEYS.mode, statsViewMode);
+    if (selectedConversationShorthandIds.length > 0) {
+      params.set(QUERY_PARAM_KEYS.selected, selectedConversationShorthandIds.join(","));
+    }
+    if (isFocusMode) params.set(QUERY_PARAM_KEYS.focus, "1");
+
+    const query = params.toString();
+    const nextUrl = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(null, "", nextUrl);
+    }
+  }, [
+    isFocusMode,
+    isUrlHydrated,
+    searchTerms,
+    selectedConversationShorthandIds,
+    selectedDatasets,
+    statsViewMode,
+  ]);
+
+  const selectedConversations = useMemo(() => {
+    return selectedConversationIds
+      .map((id) => allConversationsById.get(id))
+      .filter((conversation): conversation is TranscriptConversation => Boolean(conversation));
+  }, [allConversationsById, selectedConversationIds]);
+
+  const selectedChipPageCount = Math.max(
+    1,
+    Math.ceil(selectedConversations.length / SELECTED_CHIPS_PER_PAGE),
+  );
+
+  useEffect(() => {
+    setSelectedChipPage((current) => Math.min(current, selectedChipPageCount - 1));
+  }, [selectedChipPageCount]);
+
+  const selectedPageConversations = useMemo(() => {
+    const start = selectedChipPage * SELECTED_CHIPS_PER_PAGE;
+    return selectedConversations.slice(start, start + SELECTED_CHIPS_PER_PAGE);
+  }, [selectedChipPage, selectedConversations]);
+
+  const selectedRowOne = selectedPageConversations.slice(0, SELECTED_CHIPS_PER_ROW);
+  const selectedRowTwo = selectedPageConversations.slice(
+    SELECTED_CHIPS_PER_ROW,
+    SELECTED_CHIPS_PER_PAGE,
+  );
 
   const visibleMessages = useMemo(() => {
     if (!selectedConversation) return [];
@@ -389,12 +619,18 @@ export default function TranscriptViewer() {
 
   const toggleDataset = (dataset: Dataset) => {
     setSelectedDatasets((current) => {
+      const allSelected = current.size === DATASET_ORDER.length;
+      if (allSelected) {
+        return new Set([dataset]);
+      }
+
       const next = new Set(current);
       if (next.has(dataset)) {
         next.delete(dataset);
       } else {
         next.add(dataset);
       }
+
       return next.size === 0 ? new Set(DATASET_ORDER) : next;
     });
   };
@@ -429,29 +665,64 @@ export default function TranscriptViewer() {
     }
   };
 
-  const shareTranscript = async () => {
-    if (!selectedConversation) return;
-    const shareText = conversationTextForShare;
-    const sharePayload = {
-      title: selectedConversation.id,
-      text: shareText,
-      url: window.location.href,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(sharePayload);
-        setActionFeedback("Share dialog opened.");
-        return;
+  const toggleSelectedConversation = (conversationId: string) => {
+    setSelectedConversationIds((current) => {
+      if (current.includes(conversationId)) {
+        return current.filter((id) => id !== conversationId);
       }
-      await navigator.clipboard.writeText(
-        `${window.location.href}\n\n${selectedConversation.id}\n\n${shareText}`,
-      );
-      setActionFeedback("Share link and text copied.");
+      return [...current, conversationId];
+    });
+  };
+
+  const formatChipLabel = (conversation: TranscriptConversation) => {
+    const shorthand = toConversationShorthand(conversation);
+    if (shorthand) return shorthand;
+    const prefix = DATASET_PREFIX[conversation.dataset] ?? "?";
+    const token = conversation.id.replace(/[^a-zA-Z0-9]/g, "").slice(-2).toUpperCase() || "X1";
+    return `${prefix}${token}`;
+  };
+
+  const copyAllSelectedConversations = async () => {
+    if (!selectedConversations.length) return;
+    const formatted = selectedConversations
+      .map((conversation) => `${conversation.id}\n${conversation.rawText}`)
+      .join(`${COPY_SEPARATOR}`);
+    try {
+      await navigator.clipboard.writeText(formatted);
+      setActionFeedback(`Copied ${selectedConversations.length} selected conversations.`);
     } catch {
-      setActionFeedback("Share failed.");
+      setActionFeedback("Copy failed.");
     }
   };
+
+  const toggleFocusMode = () => {
+    setIsFocusMode((current) => !current);
+  };
+
+  useEffect(() => {
+    const onToggleRequest = () => {
+      toggleFocusMode();
+    };
+    window.addEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
+    return () => {
+      window.removeEventListener("transcript-viewer-focus-mode-toggle-request", onToggleRequest);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent<boolean>("transcript-viewer-focus-mode-change", {
+        detail: isFocusMode,
+      }),
+    );
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent<boolean>("transcript-viewer-focus-mode-change", {
+          detail: false,
+        }),
+      );
+    };
+  }, [isFocusMode]);
 
   if (loading) {
     return <p className="font-mono text-secondary">Loading transcripts...</p>;
@@ -466,7 +737,14 @@ export default function TranscriptViewer() {
   }
 
   return (
-    <div className="space-y-4">
+    <div
+      style={isFocusMode ? { top: `${focusTopOffset}px` } : undefined}
+      className={`${
+        isFocusMode
+          ? "fixed inset-x-0 bottom-0 z-[200] overflow-auto bg-[color:var(--palette-background)] p-4"
+          : ""
+      } space-y-4`}
+    >
       <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-4 xl:h-[calc(100vh-230px)]">
         <aside className="border-2 border-secondary rounded-2xl p-3 overflow-hidden flex flex-col min-h-0">
           <h2 className="font-mono font-bold text-themed mb-3">Search</h2>
@@ -521,7 +799,7 @@ export default function TranscriptViewer() {
                 className={`rounded-full border px-3 py-1 text-xs transition ${
                   allDatasetsSelected
                     ? "border-primary bg-primary/20 text-themed"
-                    : "border-secondary text-secondary"
+                    : "border-secondary bg-secondary/20 text-secondary"
                 }`}
               >
                 All
@@ -536,7 +814,7 @@ export default function TranscriptViewer() {
                     className={`rounded-full border px-3 py-1 text-xs transition ${
                       active
                         ? "border-primary bg-primary/20 text-themed"
-                        : "border-secondary text-secondary"
+                        : "border-secondary bg-secondary/20 text-secondary"
                     }`}
                   >
                     {DATASET_LABELS[dataset]}
@@ -636,21 +914,47 @@ export default function TranscriptViewer() {
           </div>
           <div className="overflow-y-auto space-y-2 flex-1 min-h-0 max-h-[45vh] xl:max-h-none">
             {filteredConversations.map((conversation) => (
-              <button
+              <div
                 key={conversation.id}
-                type="button"
                 onClick={() => setSelectedId(conversation.id)}
-                className={`w-full text-left rounded-xl border px-3 py-2 transition ${
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedId(conversation.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className={`relative w-full text-left rounded-xl border px-3 py-2 pr-9 transition ${
                   selectedId === conversation.id
                     ? "border-primary bg-primary/20"
                     : "border-secondary hover:border-primary/60"
                 }`}
               >
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleSelectedConversation(conversation.id);
+                  }}
+                  aria-label={
+                    selectedConversationIds.includes(conversation.id)
+                      ? `Unselect ${conversation.id}`
+                      : `Select ${conversation.id}`
+                  }
+                  className={`absolute right-2 top-2 rounded px-1.5 py-0.5 text-xs border transition ${
+                    selectedConversationIds.includes(conversation.id)
+                      ? "border-primary bg-primary/20 text-themed"
+                      : "border-secondary text-secondary hover:border-primary/60"
+                  }`}
+                >
+                  {selectedConversationIds.includes(conversation.id) ? "★" : "☆"}
+                </button>
                 <p className="font-mono text-sm text-themed break-all">{conversation.id}</p>
                 <p className="text-xs text-secondary">
                   {DATASET_LABELS[conversation.dataset]} · {conversation.messageCount} msgs
                 </p>
-              </button>
+              </div>
             ))}
           </div>
         </aside>
@@ -675,14 +979,6 @@ export default function TranscriptViewer() {
                 className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3 disabled:opacity-50"
               >
                 Copy
-              </button>
-              <button
-                type="button"
-                onClick={shareTranscript}
-                disabled={!selectedConversation}
-                className="rounded-lg border border-secondary px-2.5 py-1.5 text-xs sm:px-3 disabled:opacity-50"
-              >
-                Share
               </button>
             </div>
           </div>
@@ -716,6 +1012,103 @@ export default function TranscriptViewer() {
             })}
           </div>
         </main>
+      </div>
+      <div className="border-t border-secondary pt-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-secondary mb-2">
+          Selected Conversations
+        </p>
+        <div className="rounded-xl border border-secondary px-3 py-2 space-y-1.5">
+          <div className="flex items-center gap-3">
+            <div className="w-24 shrink-0">
+              <div className="flex items-center justify-center gap-1 text-[11px] text-secondary whitespace-nowrap">
+                <button
+                  type="button"
+                  onClick={() => setSelectedChipPage((current) => Math.max(0, current - 1))}
+                  disabled={selectedChipPage === 0}
+                  className="rounded border border-secondary px-1 leading-none disabled:opacity-40"
+                >
+                  &lt;
+                </button>
+                <span>
+                  Page {selectedChipPage + 1}/{selectedChipPageCount}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedChipPage((current) =>
+                      Math.min(selectedChipPageCount - 1, current + 1),
+                    )
+                  }
+                  disabled={selectedChipPage >= selectedChipPageCount - 1}
+                  className="rounded border border-secondary px-1 leading-none disabled:opacity-40"
+                >
+                  &gt;
+                </button>
+              </div>
+            </div>
+            <div className="h-5 w-px bg-secondary/60" aria-hidden="true" />
+            <div className="grid grid-cols-10 gap-1.5 flex-1">
+              {selectedRowOne.map((conversation) => (
+                <button
+                  key={`selected-row-one-${conversation.id}`}
+                  type="button"
+                  onClick={() => setSelectedId(conversation.id)}
+                  className={`h-6 w-full rounded border border-secondary/80 inline-flex items-center justify-center text-center text-[10px] font-mono leading-none text-themed ${
+                    selectedId === conversation.id ? "border-primary bg-primary/20" : ""
+                  }`}
+                >
+                  {formatChipLabel(conversation)}
+                </button>
+              ))}
+              {Array.from({
+                length: Math.max(0, SELECTED_CHIPS_PER_ROW - selectedRowOne.length),
+              }).map((_, idx) => (
+                <span
+                  key={`selected-row-one-empty-${idx}`}
+                  className="h-6 w-full rounded border border-dashed border-secondary/40"
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-24 shrink-0">
+              <button
+                type="button"
+                onClick={copyAllSelectedConversations}
+                disabled={selectedConversations.length === 0}
+                className="w-full rounded border border-secondary px-2 py-1 text-[10px] text-secondary disabled:opacity-40"
+              >
+                Copy all
+              </button>
+             
+            </div>
+            <div className="h-5 w-px bg-secondary/60" aria-hidden="true" />
+            <div className="grid grid-cols-10 gap-1.5 flex-1">
+              {selectedRowTwo.map((conversation) => (
+                <button
+                  key={`selected-row-two-${conversation.id}`}
+                  type="button"
+                  onClick={() => setSelectedId(conversation.id)}
+                  className={`h-6 w-full rounded border border-secondary/80 inline-flex items-center justify-center text-center text-[10px] font-mono leading-none text-themed ${
+                    selectedId === conversation.id ? "border-primary bg-primary/20" : ""
+                  }`}
+                >
+                  {formatChipLabel(conversation)}
+                </button>
+              ))}
+              {Array.from({
+                length: Math.max(0, SELECTED_CHIPS_PER_ROW - selectedRowTwo.length),
+              }).map((_, idx) => (
+                <span
+                  key={`selected-row-two-empty-${idx}`}
+                  className="h-6 w-full rounded border border-dashed border-secondary/40"
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
