@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Note Clustering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #faf6ed;
+    --bg-grid: rgba(40, 30, 20, 0.07);
+    --ink: #1f1a14;
+    --ink-soft: rgba(31, 26, 20, 0.65);
+    --line: #d8cfbd;
+    --accent: #b53a1f;
+    --paper: #fffdf7;
+    --panel-w: 340px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  #toolbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: rgba(250, 246, 237, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 6px;
+    z-index: 1000;
+  }
+  #toolbar h1 {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 18px 0 0;
+    letter-spacing: -0.01em;
+  }
+  .divider {
+    width: 1px;
+    height: 22px;
+    background: var(--line);
+    margin: 0 6px;
+  }
+  .btn {
+    padding: 7px 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+    white-space: nowrap;
+  }
+  .btn:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  .btn.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .btn.primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .btn.danger:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .btn.icon {
+    padding: 7px 9px;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 32px;
+  }
+  #toolbar .btn.icon {
+    display: none;
+  }
+  #zoom-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    width: 42px;
+    text-align: center;
+    cursor: pointer;
+  }
+  #zoom-display:hover { color: var(--ink); }
+  #status {
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 8px;
+  }
+  #help {
+    margin-left: auto;
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    font-style: italic;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  #main {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+  }
+  #canvas-wrap {
+    flex: 1;
+    overflow: auto;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, var(--bg-grid) 1px, transparent 0);
+    background-size: 22px 22px;
+    position: relative;
+  }
+  #canvas-sizer {
+    position: relative;
+    width: 5400px;
+    height: 5800px;
+  }
+  #canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5400px;
+    height: 5800px;
+    transform-origin: 0 0;
+  }
+
+  #side-panel {
+    width: var(--panel-w);
+    flex-shrink: 0;
+    background: var(--paper);
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    transition: margin-right 0.2s ease;
+  }
+  body.panel-closed #side-panel {
+    margin-right: calc(-1 * var(--panel-w));
+  }
+
+  /* Drawer tab attached to panel edge */
+  #drawer-tab {
+    position: fixed;
+    top: 50%;
+    right: var(--panel-w);
+    transform: translateY(-50%);
+    width: 22px;
+    height: 64px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: right 0.2s ease, background 0.12s, color 0.12s;
+    padding: 0;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: -2px 2px 6px rgba(40, 30, 15, 0.06);
+  }
+  #drawer-tab:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  body.panel-closed #drawer-tab {
+    right: 0;
+  }
+  .drawer-arrow {
+    font-size: 14px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+  body:not(.panel-closed) .drawer-arrow {
+    transform: rotate(0deg);
+  }
+  body.panel-closed .drawer-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Empty state overlay */
+  #empty-state-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: var(--panel-w);
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: right 0.2s ease;
+    z-index: 5;
+  }
+  body.panel-closed #empty-state-overlay { right: 0; }
+  body:not(.empty) #empty-state-overlay { display: none; }
+
+  .empty-state-msg {
+    text-align: center;
+    pointer-events: auto;
+    padding: 28px 32px;
+  }
+  .empty-title {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 32px;
+    margin: 0 0 6px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .empty-hint {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+  }
+  .empty-hint code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: rgba(0,0,0,0.05);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-style: normal;
+  }
+  .empty-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  #panel-header {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #panel-header h2 {
+    margin: 0;
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 20px;
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+  #panel-header .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-soft);
+  }
+  #sources-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px;
+  }
+  #panel-footer {
+    border-top: 1px solid var(--line);
+    padding: 12px;
+    background: var(--paper);
+  }
+
+  .source {
+    margin-bottom: 8px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .source-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .source-header:hover {
+    background: rgba(0,0,0,0.03);
+  }
+  .collapse-arrow {
+    width: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-align: center;
+    transition: transform 0.15s;
+    display: inline-block;
+  }
+  .source.collapsed .collapse-arrow {
+    transform: rotate(-90deg);
+  }
+  .source.collapsed .source-body {
+    display: none;
+  }
+  .pid-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    flex: 1;
+  }
+  .swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+    cursor: pointer;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #fff;
+  }
+  .swatch::-webkit-color-swatch-wrapper { padding: 0; }
+  .swatch::-webkit-color-swatch { border: none; border-radius: 50%; }
+  .swatch::-moz-color-swatch { border: none; border-radius: 50%; }
+  .source-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+  .source-delete {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: none;
+  }
+  .source-delete:hover { background: var(--accent); }
+  .source.empty .source-delete { display: block; }
+
+  .source-body {
+    padding: 4px 8px 8px;
+  }
+  .note-row {
+    position: relative;
+    margin: 2px 0;
+  }
+  .note-row input {
+    width: 100%;
+    padding: 6px 26px 6px 9px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: var(--paper);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .note-row input:hover {
+    border-color: var(--line);
+  }
+  .note-row input:focus {
+    outline: none;
+    border-color: var(--ink);
+    background: #fff;
+  }
+  .row-delete {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.15);
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .note-row:hover .row-delete { opacity: 1; }
+  .row-delete:hover { background: var(--accent); }
+
+  .add-row input {
+    width: 100%;
+    padding: 6px 9px;
+    border: 1px dashed var(--line);
+    border-radius: 2px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+  .add-row input:focus {
+    outline: none;
+    background: var(--paper);
+    border-style: solid;
+    border-color: var(--ink);
+    color: var(--ink);
+    font-style: normal;
+  }
+
+  .note {
+    position: absolute;
+    width: 220px;
+    padding: 10px 13px 11px;
+    border-radius: 2px;
+    box-shadow:
+      0 1px 1px rgba(40, 30, 15, 0.08),
+      0 4px 10px rgba(40, 30, 15, 0.06);
+    cursor: grab;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    transition: box-shadow 0.15s, transform 0.15s;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  .note:hover {
+    box-shadow:
+      0 2px 2px rgba(40, 30, 15, 0.12),
+      0 8px 18px rgba(40, 30, 15, 0.10);
+    transform: translateY(-1px);
+  }
+  .note.dragging {
+    cursor: grabbing;
+    box-shadow:
+      0 6px 6px rgba(40, 30, 15, 0.14),
+      0 18px 38px rgba(40, 30, 15, 0.18);
+    transform: rotate(1.2deg) scale(1.02);
+    transition: none;
+  }
+  .note.flash {
+    animation: flash 1s ease-out;
+  }
+  @keyframes flash {
+    0%   { box-shadow: 0 0 0 4px var(--accent), 0 4px 10px rgba(40,30,15,0.06); }
+    100% { box-shadow: 0 0 0 0 transparent, 0 4px 10px rgba(40,30,15,0.06); }
+  }
+  .note .pid {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 5px;
+    letter-spacing: 0.04em;
+  }
+  .note .text {
+    color: rgba(0, 0, 0, 0.86);
+    word-wrap: break-word;
+  }
+  .note .item-delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    font-size: 12px;
+    line-height: 1;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: none;
+    padding: 0;
+    z-index: 2;
+  }
+  .note:hover .item-delete { display: block; }
+  .note .item-delete:hover { background: var(--accent); }
+
+  .category {
+    position: absolute;
+    min-width: 120px;
+    max-width: 360px;
+    padding: 14px 22px;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: grab;
+    user-select: none;
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    border-radius: 3px;
+    box-shadow:
+      0 2px 3px rgba(0, 0, 0, 0.18),
+      0 10px 24px rgba(0, 0, 0, 0.16);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .category:hover {
+    box-shadow:
+      0 3px 5px rgba(0, 0, 0, 0.22),
+      0 14px 32px rgba(0, 0, 0, 0.20);
+    transform: translateY(-1px);
+  }
+  .category[data-editing="true"] {
+    cursor: text;
+    outline: none;
+  }
+  .category.dragging {
+    cursor: grabbing;
+    transform: rotate(-0.6deg);
+    transition: none;
+  }
+  .category .item-delete {
+    position: absolute;
+    top: -9px;
+    right: -9px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    font-size: 13px;
+    line-height: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    cursor: pointer;
+    display: none;
+    padding: 0;
+  }
+  .category:hover .item-delete { display: block; }
+  .category .item-delete:hover { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+
+  #file-input { display: none; }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    border-radius: 4px;
+    padding: 20px 22px;
+    width: 360px;
+    max-width: 92vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal h3 {
+    margin: 0 0 8px;
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .modal p {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .modal input[type="text"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    margin-bottom: 14px;
+  }
+  .modal input[type="text"]:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-row:hover { color: var(--ink); }
+  .checkbox-row input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--ink);
+  }
+  .modal code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(0,0,0,0.06);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 720px) {
+    :root { --panel-w: 280px; }
+    #toolbar { flex-wrap: wrap; height: auto; padding: 8px 10px; }
+    #toolbar h1 { font-size: 18px; margin-right: 12px; }
+    #help { display: none; }
+    #main { top: 110px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <h1>note clustering</h1>
+  <button class="btn primary" id="add-cat" title="Add category">+ Category</button>
+  <button class="btn" id="add-note" title="Add a quick note (uses 'me' source)">+ Note</button>
+  <div class="divider"></div>
+  <button class="btn icon" id="zoom-out" title="Zoom out">−</button>
+  <span id="zoom-display" title="Click to reset to 100%">100%</span>
+  <button class="btn icon" id="zoom-in" title="Zoom in">+</button>
+  <div class="divider"></div>
+  <button class="btn icon" id="undo-btn" title="Undo (Ctrl/Cmd+Z)">↶</button>
+  <button class="btn icon" id="redo-btn" title="Redo (Ctrl/Cmd+Shift+Z)">↷</button>
+  <div class="divider"></div>
+  <button class="btn" id="import">Import .json</button>
+  <button class="btn" id="export">Export .json</button>
+  <button class="btn danger" id="reset">Reset</button>
+  <input type="file" id="file-input" accept=".json" />
+  <div id="status"></div>
+  <!-- Help text removed to keep the embed clean -->
+</div>
+
+<div id="main">
+  <div id="canvas-wrap">
+    <div id="canvas-sizer">
+      <div id="canvas"></div>
+    </div>
+  </div>
+
+  <aside id="side-panel">
+    <div id="panel-header">
+      <h2>sources</h2>
+      <span class="count" id="total-count">0</span>
+    </div>
+    <div id="sources-list"></div>
+    <div id="panel-footer">
+      <button class="btn primary" id="add-source-btn" style="width: 100%;">+ Add source</button>
+    </div>
+  </aside>
+
+  <button id="drawer-tab" title="Toggle source panel" aria-label="Toggle source panel">
+    <span class="drawer-arrow">›</span>
+  </button>
+
+  <div id="empty-state-overlay">
+    <div class="empty-state-msg">
+      <p class="empty-title">empty board</p>
+      <p class="empty-hint">import a <code>.json</code> file or add a source to begin</p>
+      <div class="empty-actions">
+        <button class="btn primary" id="empty-import">Import .json</button>
+        <button class="btn" id="empty-add-source">+ Add source</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-add-source">
+  <div class="modal">
+    <h3>New source</h3>
+    <p>Add a new participant or note source. Free text, try <em>0042</em>, <em>me</em>, or <em>lit-review</em>.</p>
+    <input type="text" id="new-source-input" placeholder="0042" autocomplete="off" />
+    <div class="modal-actions">
+      <button class="btn" id="modal-cancel">Cancel</button>
+      <button class="btn primary" id="modal-create">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-confirm-delete">
+  <div class="modal">
+    <h3>Delete this note?</h3>
+    <p id="confirm-delete-msg"></p>
+    <label class="checkbox-row">
+      <input type="checkbox" id="confirm-skip-future" />
+      <span>Don't show this popup again</span>
+    </label>
+    <div class="modal-actions">
+      <button class="btn" id="confirm-cancel">Cancel</button>
+      <button class="btn primary" id="confirm-delete-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let PALETTE = {};
+
+  const COLOUR_POOL = [
+    '#FFC79A','#A8D8C8','#E5B8E5','#FFD27F','#9EC2E0',
+    '#F4A8A0','#C8DDA0','#D8B8E8','#FFE49A','#A0D0E0',
+    '#E8C8B8','#B8E0C0','#F0B8D0','#FFCB99','#C0CEE5',
+    '#E5DBA0','#D8C8E5','#A8C0E5','#F0D0A0','#B8D8B8',
+  ];
+
+
+  let items = [];
+  let nextId = 1;
+  let dirty = false;
+  let zoom = 1;
+  let collapsedSources = new Set();
+  let undoStack = [];
+  let redoStack = [];
+  const MAX_UNDO = 60;
+
+  const canvas = document.getElementById('canvas');
+  const sizer = document.getElementById('canvas-sizer');
+  const wrap = document.getElementById('canvas-wrap');
+  const statusEl = document.getElementById('status');
+  const sourcesList = document.getElementById('sources-list');
+  const totalCount = document.getElementById('total-count');
+
+  function markDirty() {
+    dirty = true;
+    statusEl.textContent = '· unsaved';
+  }
+  function markClean() {
+    dirty = false;
+    statusEl.textContent = '';
+  }
+
+  function snapshot() {
+    return JSON.stringify({ items, palette: PALETTE });
+  }
+  function restoreSnapshot(snap) {
+    const data = JSON.parse(snap);
+    items = data.items;
+    PALETTE = data.palette;
+  }
+
+  let pendingSnapshot = null;
+  function beginAction() {
+    pendingSnapshot = snapshot();
+  }
+  function commitAction() {
+    if (pendingSnapshot === null) return;
+    undoStack.push(pendingSnapshot);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack = [];
+    pendingSnapshot = null;
+    updateUndoButtons();
+    markDirty();
+  }
+  function cancelAction() {
+    pendingSnapshot = null;
+  }
+  function withAction(fn) {
+    beginAction();
+    fn();
+    commitAction();
+    renderAll();
+  }
+
+  function undo() {
+    if (undoStack.length === 0) return;
+    redoStack.push(snapshot());
+    restoreSnapshot(undoStack.pop());
+    renderAll();
+    updateUndoButtons();
+    markDirty();
+  }
+  function redo() {
+    if (redoStack.length === 0) return;
+    undoStack.push(snapshot());
+    restoreSnapshot(redoStack.pop());
+    renderAll();
+    updateUndoButtons();
+    markDirty();
+  }
+
+  function updateUndoButtons() {
+    document.getElementById('undo-btn').disabled = undoStack.length === 0;
+    document.getElementById('redo-btn').disabled = redoStack.length === 0;
+  }
+
+  function initLayout() {
+    items = [];
+    PALETTE = {};
+    nextId = 1;
+    undoStack = [];
+    redoStack = [];
+    collapsedSources = new Set();
+    renderAll();
+    updateUndoButtons();
+    markClean();
+  }
+
+  function findFirstAvailableSlot() {
+    const NOTE_W = 220;
+    const NOTE_H = 80;
+    const GAP_X = 24;
+    const GAP_Y = 16;
+    const COL_W = NOTE_W + GAP_X;
+    const ROW_H = NOTE_H + GAP_Y;
+    const START_X = 32;
+    const START_Y = 24;
+    const COLS = 12;
+    const MAX_ROWS = 200;
+
+    function overlaps(x, y) {
+      return items.some(it => {
+        return x < it.x + NOTE_W && x + NOTE_W > it.x &&
+               y < it.y + NOTE_H && y + NOTE_H > it.y;
+      });
+    }
+
+    for (let r = 0; r < MAX_ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = START_X + c * COL_W;
+        const y = START_Y + r * ROW_H;
+        if (!overlaps(x, y)) return { x, y };
+      }
+    }
+    return { x: START_X, y: START_Y };
+  }
+
+  function scrollToCanvasPoint(x, y) {
+    const targetX = x * zoom - wrap.clientWidth / 2 + 110;
+    const targetY = y * zoom - wrap.clientHeight / 2 + 40;
+    wrap.scrollTo({
+      left: Math.max(0, targetX),
+      top: Math.max(0, targetY),
+      behavior: 'smooth',
+    });
+  }
+
+  function renderAll() {
+    renderCanvas();
+    renderPanel();
+    updateUndoButtons();
+    document.body.classList.toggle('empty', items.length === 0);
+  }
+
+  function renderCanvas() {
+    canvas.innerHTML = '';
+    items.forEach(item => createCanvasElement(item));
+  }
+
+  function createCanvasElement(item) {
+    const el = document.createElement('div');
+    el.dataset.id = item.id;
+    el.style.left = item.x + 'px';
+    el.style.top = item.y + 'px';
+
+    if (item.type === 'note') {
+      el.className = 'note';
+      el.style.background = PALETTE[item.pid] || '#eee';
+
+      const pidEl = document.createElement('div');
+      pidEl.className = 'pid';
+      pidEl.textContent = '#' + item.pid;
+
+      const textEl = document.createElement('div');
+      textEl.className = 'text';
+      textEl.textContent = item.text;
+
+      const del = document.createElement('button');
+      del.className = 'item-delete';
+      del.textContent = '×';
+      del.title = 'Delete note';
+      del.addEventListener('pointerdown', (e) => e.stopPropagation());
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        confirmDeleteNote(item.id);
+      });
+
+      el.appendChild(pidEl);
+      el.appendChild(textEl);
+      el.appendChild(del);
+
+      el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        startEditNoteText(textEl, item);
+      });
+    } else {
+      el.className = 'category';
+      el.textContent = item.text;
+      const del = document.createElement('button');
+      del.className = 'item-delete';
+      del.textContent = '×';
+      del.title = 'Delete category';
+      del.addEventListener('pointerdown', (e) => e.stopPropagation());
+      del.addEventListener('click', (e) => {
+        e.stopPropagation();
+        withAction(() => {
+          items = items.filter(i => i.id !== item.id);
+        });
+      });
+      el.appendChild(del);
+
+      el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        startEditCategory(el, item);
+      });
+    }
+
+    el.addEventListener('pointerdown', (e) => startDrag(e, item.id));
+    canvas.appendChild(el);
+    return el;
+  }
+
+  function startEditCategory(el, item) {
+    beginAction();
+    el.dataset.editing = 'true';
+    el.contentEditable = 'true';
+    const del = el.querySelector('.item-delete');
+    if (del) del.style.display = 'none';
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    const originalText = item.text;
+    const finish = () => {
+      el.contentEditable = 'false';
+      el.dataset.editing = 'false';
+      let txt = el.textContent.replace(/×\s*$/, '').trim();
+      if (!txt) txt = '(untitled)';
+      el.removeEventListener('blur', finish);
+      el.removeEventListener('keydown', onKey);
+      if (txt === originalText) {
+        cancelAction();
+        renderCanvas();
+      } else {
+        item.text = txt;
+        commitAction();
+        renderCanvas();
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); }
+      if (e.key === 'Escape') {
+        el.textContent = originalText;
+        el.blur();
+      }
+    };
+    el.addEventListener('blur', finish);
+    el.addEventListener('keydown', onKey);
+  }
+
+  function startEditNoteText(textEl, item) {
+    beginAction();
+    const original = item.text;
+    textEl.contentEditable = 'true';
+    textEl.style.outline = 'none';
+    textEl.focus();
+    const range = document.createRange();
+    range.selectNodeContents(textEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    const finish = () => {
+      textEl.contentEditable = 'false';
+      let txt = textEl.textContent.trim();
+      if (!txt) txt = '(empty)';
+      textEl.removeEventListener('blur', finish);
+      textEl.removeEventListener('keydown', onKey);
+      if (txt === original) {
+        cancelAction();
+      } else {
+        item.text = txt;
+        commitAction();
+        renderPanel();
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); textEl.blur(); }
+      if (e.key === 'Escape') {
+        textEl.textContent = original;
+        textEl.blur();
+      }
+    };
+    textEl.addEventListener('blur', finish);
+    textEl.addEventListener('keydown', onKey);
+  }
+
+  function renderPanel() {
+    sourcesList.innerHTML = '';
+
+    const groups = {};
+    Object.keys(PALETTE).forEach(pid => { groups[pid] = []; });
+    items.forEach(it => {
+      if (it.type !== 'note') return;
+      if (!groups[it.pid]) groups[it.pid] = [];
+      groups[it.pid].push(it);
+    });
+
+    const pids = Object.keys(groups).sort((a, b) => {
+      const na = parseInt(a, 10), nb = parseInt(b, 10);
+      const aIsNum = !isNaN(na), bIsNum = !isNaN(nb);
+      if (aIsNum && bIsNum) return na - nb;
+      if (aIsNum) return -1;
+      if (bIsNum) return 1;
+      return a.localeCompare(b);
+    });
+
+    let totalNotes = 0;
+    pids.forEach(pid => {
+      const notes = groups[pid];
+      totalNotes += notes.length;
+      sourcesList.appendChild(renderSource(pid, notes));
+    });
+
+    totalCount.textContent = totalNotes + ' note' + (totalNotes === 1 ? '' : 's');
+  }
+
+  function renderSource(pid, notes) {
+    const wrapEl = document.createElement('div');
+    wrapEl.className = 'source';
+    if (collapsedSources.has(pid)) wrapEl.classList.add('collapsed');
+    if (notes.length === 0) wrapEl.classList.add('empty');
+    wrapEl.dataset.pid = pid;
+
+    const header = document.createElement('div');
+    header.className = 'source-header';
+
+    const arrow = document.createElement('span');
+    arrow.className = 'collapse-arrow';
+    arrow.textContent = '▼';
+
+    const label = document.createElement('span');
+    label.className = 'pid-label';
+    label.textContent = '#' + pid;
+
+    const count = document.createElement('span');
+    count.className = 'source-count';
+    count.textContent = notes.length;
+
+    const swatch = document.createElement('input');
+    swatch.type = 'color';
+    swatch.className = 'swatch';
+    swatch.value = toHex(PALETTE[pid] || '#cccccc');
+    swatch.title = 'Change colour';
+    swatch.addEventListener('click', (e) => e.stopPropagation());
+
+    let beforeColour = null;
+    swatch.addEventListener('focus', () => {
+      beforeColour = PALETTE[pid];
+      beginAction();
+    });
+    swatch.addEventListener('input', (e) => {
+      PALETTE[pid] = e.target.value;
+      items.forEach(it => {
+        if (it.type === 'note' && it.pid === pid) {
+          const node = canvas.querySelector('[data-id="' + it.id + '"]');
+          if (node) node.style.background = PALETTE[pid];
+        }
+      });
+    });
+    swatch.addEventListener('change', () => {
+      if (beforeColour !== null && PALETTE[pid] !== beforeColour) {
+        commitAction();
+      } else {
+        cancelAction();
+      }
+      beforeColour = null;
+    });
+
+    const del = document.createElement('button');
+    del.className = 'source-delete';
+    del.textContent = '×';
+    del.title = 'Remove this empty source';
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      withAction(() => { delete PALETTE[pid]; });
+    });
+
+    header.appendChild(arrow);
+    header.appendChild(label);
+    header.appendChild(count);
+    header.appendChild(swatch);
+    header.appendChild(del);
+
+    header.addEventListener('click', () => {
+      if (wrapEl.classList.toggle('collapsed')) {
+        collapsedSources.add(pid);
+      } else {
+        collapsedSources.delete(pid);
+      }
+    });
+
+    const body = document.createElement('div');
+    body.className = 'source-body';
+
+    notes.forEach(note => {
+      body.appendChild(renderNoteRow(note));
+    });
+
+    body.appendChild(renderAddRow(pid));
+
+    wrapEl.appendChild(header);
+    wrapEl.appendChild(body);
+    return wrapEl;
+  }
+
+  function renderNoteRow(note) {
+    const row = document.createElement('div');
+    row.className = 'note-row';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = note.text;
+    input.dataset.noteId = note.id;
+
+    let editing = false;
+    let original = note.text;
+
+    input.addEventListener('focus', () => {
+      original = note.text;
+      beginAction();
+      editing = true;
+    });
+    input.addEventListener('blur', () => {
+      if (!editing) return;
+      editing = false;
+      const v = input.value.trim();
+      if (!v) {
+        cancelAction();
+        confirmDeleteNote(note.id);
+        return;
+      }
+      if (v === original) {
+        cancelAction();
+        return;
+      }
+      note.text = v;
+      commitAction();
+      const card = canvas.querySelector('[data-id="' + note.id + '"] .text');
+      if (card) card.textContent = v;
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { input.value = original; input.blur(); }
+    });
+
+    const del = document.createElement('button');
+    del.className = 'row-delete';
+    del.textContent = '×';
+    del.title = 'Delete note';
+    del.addEventListener('mousedown', (e) => e.preventDefault());
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
+      editing = false;
+      confirmDeleteNote(note.id);
+    });
+
+    row.appendChild(input);
+    row.appendChild(del);
+    return row;
+  }
+
+  function renderAddRow(pid) {
+    const row = document.createElement('div');
+    row.className = 'add-row';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '+ add a note...';
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const v = input.value.trim();
+        if (!v) return;
+        addNoteFromPanel(pid, v);
+        input.value = '';
+      }
+    });
+    input.addEventListener('blur', () => {
+      const v = input.value.trim();
+      if (v) {
+        addNoteFromPanel(pid, v);
+        input.value = '';
+      }
+    });
+
+    row.appendChild(input);
+    return row;
+  }
+
+  function toHex(c) {
+    if (!c) return '#cccccc';
+    if (c.startsWith('#') && c.length === 7) return c;
+    if (c.startsWith('#') && c.length === 4) {
+      return '#' + c[1]+c[1] + c[2]+c[2] + c[3]+c[3];
+    }
+    return '#cccccc';
+  }
+
+  function addNoteFromPanel(pid, text) {
+    const slot = findFirstAvailableSlot();
+    let newId;
+    withAction(() => {
+      newId = 'i' + (nextId++);
+      items.push({
+        id: newId,
+        type: 'note',
+        text,
+        pid,
+        x: slot.x,
+        y: slot.y,
+      });
+    });
+    setTimeout(() => {
+      const el = canvas.querySelector('[data-id="' + newId + '"]');
+      if (el) {
+        el.classList.add('flash');
+        setTimeout(() => el.classList.remove('flash'), 1000);
+      }
+      scrollToCanvasPoint(slot.x, slot.y);
+    }, 30);
+  }
+
+  function addCategoryAtViewport() {
+    let newId;
+    withAction(() => {
+      const cx = (wrap.scrollLeft + wrap.clientWidth / 2) / zoom;
+      const cy = (wrap.scrollTop + wrap.clientHeight / 2) / zoom;
+      newId = 'i' + (nextId++);
+      items.push({
+        id: newId,
+        type: 'category',
+        text: 'New category',
+        x: cx - 110,
+        y: cy - 28,
+      });
+    });
+    setTimeout(() => {
+      const el = canvas.querySelector('[data-id="' + newId + '"]');
+      const item = items.find(i => i.id === newId);
+      if (el && item) startEditCategory(el, item);
+    }, 30);
+  }
+
+  function addNoteAtViewport() {
+    if (!PALETTE['me']) PALETTE['me'] = '#fffdf7';
+    let newId;
+    withAction(() => {
+      const cx = (wrap.scrollLeft + wrap.clientWidth / 2) / zoom;
+      const cy = (wrap.scrollTop + wrap.clientHeight / 2) / zoom;
+      newId = 'i' + (nextId++);
+      items.push({
+        id: newId,
+        type: 'note',
+        text: 'your note',
+        pid: 'me',
+        x: cx - 110,
+        y: cy - 30,
+      });
+    });
+    setTimeout(() => {
+      const el = canvas.querySelector('[data-id="' + newId + '"]');
+      const item = items.find(i => i.id === newId);
+      if (el && item) {
+        const textEl = el.querySelector('.text');
+        if (textEl) startEditNoteText(textEl, item);
+      }
+    }, 30);
+  }
+
+  const SKIP_DELETE_KEY = 'noteClustering.skipDeleteConfirm';
+  let skipDeleteConfirm = false;
+  try {
+    skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === '1';
+  } catch (_) {}
+
+  function performDeleteNote(id) {
+    withAction(() => {
+      items = items.filter(i => i.id !== id);
+    });
+  }
+
+  function confirmDeleteNote(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    if (skipDeleteConfirm) {
+      performDeleteNote(id);
+      return;
+    }
+
+    const modal = document.getElementById('modal-confirm-delete');
+    const msg = document.getElementById('confirm-delete-msg');
+    const skip = document.getElementById('confirm-skip-future');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const deleteBtn = document.getElementById('confirm-delete-btn');
+
+    // Build message safely (pid is free-text)
+    msg.textContent = '';
+    msg.appendChild(document.createTextNode('It will also disappear from the '));
+    const code = document.createElement('code');
+    code.textContent = '#' + item.pid;
+    msg.appendChild(code);
+    msg.appendChild(document.createTextNode(' source list in the side panel. You can undo with Ctrl/Cmd+Z.'));
+
+    skip.checked = false;
+    modal.classList.add('open');
+    setTimeout(() => deleteBtn.focus(), 50);
+
+    const close = () => {
+      modal.classList.remove('open');
+      cancelBtn.onclick = null;
+      deleteBtn.onclick = null;
+      modal.onclick = null;
+      document.removeEventListener('keydown', onKey);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      if (e.key === 'Enter')  { e.preventDefault(); confirmDelete(); }
+    };
+    const confirmDelete = () => {
+      if (skip.checked) {
+        skipDeleteConfirm = true;
+        try { localStorage.setItem(SKIP_DELETE_KEY, '1'); } catch (_) {}
+      }
+      close();
+      performDeleteNote(id);
+    };
+
+    cancelBtn.onclick = close;
+    deleteBtn.onclick = confirmDelete;
+    modal.onclick = (e) => { if (e.target === modal) close(); };
+    document.addEventListener('keydown', onKey);
+  }
+
+  function startDrag(e, id) {
+    if (e.button !== undefined && e.button !== 0) return;
+    if (e.target.classList && e.target.classList.contains('item-delete')) return;
+    if (e.target.isContentEditable) return;
+
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    const el = canvas.querySelector('[data-id="' + id + '"]');
+    if (!el) return;
+    if (el.dataset.editing === 'true') return;
+
+    el.style.zIndex = 999;
+    el.classList.add('dragging');
+
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+    const startItemX = item.x;
+    const startItemY = item.y;
+
+    try { el.setPointerCapture(e.pointerId); } catch(_) {}
+
+    let moved = false;
+    beginAction();
+
+    const onMove = (ev) => {
+      const dx = (ev.clientX - startMouseX) / zoom;
+      const dy = (ev.clientY - startMouseY) / zoom;
+      if (!moved && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) moved = true;
+      item.x = Math.max(0, startItemX + dx);
+      item.y = Math.max(0, startItemY + dy);
+      el.style.left = item.x + 'px';
+      el.style.top = item.y + 'px';
+    };
+
+    const onUp = (ev) => {
+      el.classList.remove('dragging');
+      el.style.zIndex = '';
+      try { el.releasePointerCapture(ev.pointerId); } catch(_) {}
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('pointercancel', onUp);
+      if (moved) commitAction();
+      else cancelAction();
+    };
+
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerup', onUp);
+    el.addEventListener('pointercancel', onUp);
+  }
+
+  const ZOOMS = [0.25, 0.33, 0.5, 0.67, 0.8, 1, 1.25, 1.5, 1.75, 2];
+  function applyZoom() {
+    canvas.style.transform = 'scale(' + zoom + ')';
+    sizer.style.width = (5400 * zoom) + 'px';
+    sizer.style.height = (5800 * zoom) + 'px';
+    document.getElementById('zoom-display').textContent = Math.round(zoom * 100) + '%';
+  }
+  function zoomIn() {
+    const next = ZOOMS.find(z => z > zoom + 0.001);
+    if (next) { zoom = next; applyZoom(); }
+  }
+  function zoomOut() {
+    const reversed = [...ZOOMS].reverse();
+    const next = reversed.find(z => z < zoom - 0.001);
+    if (next) { zoom = next; applyZoom(); }
+  }
+  function zoomReset() { zoom = 1; applyZoom(); }
+
+  wrap.addEventListener('wheel', (e) => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else zoomOut();
+  }, { passive: false });
+
+  const modalBackdrop = document.getElementById('modal-add-source');
+  const newSourceInput = document.getElementById('new-source-input');
+
+  function openAddSourceModal() {
+    modalBackdrop.classList.add('open');
+    newSourceInput.value = '';
+    setTimeout(() => newSourceInput.focus(), 50);
+  }
+  function closeAddSourceModal() {
+    modalBackdrop.classList.remove('open');
+  }
+  function createSourceFromModal() {
+    const v = newSourceInput.value.trim();
+    if (!v) { newSourceInput.focus(); return; }
+    if (PALETTE[v]) {
+      alert('A source with that ID already exists.');
+      return;
+    }
+    withAction(() => {
+      const used = new Set(Object.values(PALETTE).map(c => c.toLowerCase()));
+      const choice = COLOUR_POOL.find(c => !used.has(c.toLowerCase())) ||
+                     COLOUR_POOL[Math.floor(Math.random() * COLOUR_POOL.length)];
+      PALETTE[v] = choice;
+    });
+    closeAddSourceModal();
+    setTimeout(() => {
+      const node = sourcesList.querySelector('.source[data-pid="' + CSS.escape(v) + '"] .add-row input');
+      if (node) node.focus();
+    }, 50);
+  }
+
+  document.getElementById('modal-cancel').addEventListener('click', closeAddSourceModal);
+  document.getElementById('modal-create').addEventListener('click', createSourceFromModal);
+  newSourceInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); createSourceFromModal(); }
+    if (e.key === 'Escape') { closeAddSourceModal(); }
+  });
+  modalBackdrop.addEventListener('click', (e) => {
+    if (e.target === modalBackdrop) closeAddSourceModal();
+  });
+
+  function exportState() {
+    const data = JSON.stringify(
+      { version: 2, items, palette: PALETTE, nextId, zoom },
+      null, 2
+    );
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+    a.href = url;
+    a.download = 'coding-playground-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    markClean();
+  }
+
+  function importState() {
+    document.getElementById('file-input').click();
+  }
+
+  function ensurePaletteCovers() {
+    items.forEach(it => {
+      if (it.type === 'note' && !PALETTE[it.pid]) {
+        const used = new Set(Object.values(PALETTE).map(c => String(c).toLowerCase()));
+        const choice = COLOUR_POOL.find(c => !used.has(c.toLowerCase())) ||
+                       COLOUR_POOL[Math.floor(Math.random() * COLOUR_POOL.length)];
+        PALETTE[it.pid] = choice;
+      }
+    });
+  }
+
+  function loadFromSimpleArray(arr) {
+    items = [];
+    PALETTE = {};
+    nextId = 1;
+    const startX = 32, startY = 24, colWidth = 244, rowHeight = 130, cols = 8;
+    arr.forEach((n, i) => {
+      const text = n.t ?? n.text ?? n.note ?? n.content ?? '';
+      const pid = String(n.pid ?? n.source ?? n.participant ?? 'unknown');
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      items.push({
+        id: 'i' + (nextId++),
+        type: 'note',
+        text: String(text),
+        pid,
+        x: typeof n.x === 'number' ? n.x : startX + col * colWidth,
+        y: typeof n.y === 'number' ? n.y : startY + row * rowHeight,
+      });
+    });
+    ensurePaletteCovers();
+  }
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        let loaded = false;
+
+        // Format 1: full state export ({items, palette, ...})
+        if (data && Array.isArray(data.items)) {
+          items = data.items;
+          PALETTE = data.palette || {};
+          nextId = data.nextId || (items.length + 1);
+          if (data.zoom) { zoom = data.zoom; applyZoom(); }
+          ensurePaletteCovers();
+          loaded = true;
+        }
+        // Format 2: bare array of notes
+        else if (Array.isArray(data)) {
+          loadFromSimpleArray(data);
+          loaded = true;
+        }
+        // Format 3: { notes: [...] }
+        else if (data && Array.isArray(data.notes)) {
+          loadFromSimpleArray(data.notes);
+          loaded = true;
+        }
+
+        if (!loaded) throw new Error('Unrecognised JSON shape. Expected {items: [...]}, an array, or {notes: [...]}.');
+
+        undoStack = []; redoStack = [];
+        renderAll();
+        markClean();
+      } catch (err) {
+        alert('Could not load file:\n' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  document.getElementById('add-cat').onclick = addCategoryAtViewport;
+  document.getElementById('add-note').onclick = addNoteAtViewport;
+  document.getElementById('zoom-in').onclick = zoomIn;
+  document.getElementById('zoom-out').onclick = zoomOut;
+  document.getElementById('zoom-display').onclick = zoomReset;
+  document.getElementById('undo-btn').onclick = undo;
+  document.getElementById('redo-btn').onclick = redo;
+  document.getElementById('drawer-tab').onclick = () => {
+    document.body.classList.toggle('panel-closed');
+  };
+  document.getElementById('add-source-btn').onclick = openAddSourceModal;
+  document.getElementById('empty-add-source').onclick = openAddSourceModal;
+  document.getElementById('empty-import').onclick = importState;
+  document.getElementById('export').onclick = exportState;
+  document.getElementById('import').onclick = importState;
+  document.getElementById('reset').onclick = () => {
+    if (confirm('Reset to a blank board?\n\nAll notes, categories, sources, and palette colours will be cleared. Export first if you want to keep your work.')) {
+      skipDeleteConfirm = false;
+      try { localStorage.removeItem(SKIP_DELETE_KEY); } catch (_) {}
+      initLayout();
+    }
+  };
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    const inField = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      if (e.shiftKey) redo(); else undo();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+      e.preventDefault();
+      redo();
+      return;
+    }
+    if (inField) return;
+    if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+      e.preventDefault(); zoomIn();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+      e.preventDefault(); zoomOut();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+      e.preventDefault(); zoomReset();
+    }
+  });
+
+  window.addEventListener('beforeunload', (e) => {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  applyZoom();
+  initLayout();
+</script>
+
+</body>
+</html>
