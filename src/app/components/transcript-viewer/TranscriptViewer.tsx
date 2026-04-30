@@ -437,6 +437,20 @@ export default function TranscriptViewer() {
     return map;
   }, [payload]);
 
+  /** Favourites in URL order; always shown at top of sidebar even when filters exclude them. */
+  const pinnedFavoriteConversations = useMemo(() => {
+    return selectedConversationIds
+      .map((id) => allConversationsById.get(id))
+      .filter((conversation): conversation is TranscriptConversation => Boolean(conversation));
+  }, [allConversationsById, selectedConversationIds]);
+
+  /** Pinned favourites first, then filtered results (excluding duplicates already pinned). */
+  const sidebarConversations = useMemo(() => {
+    const favouriteIdSet = new Set(selectedConversationIds);
+    const rest = filteredConversations.filter((conversation) => !favouriteIdSet.has(conversation.id));
+    return [...pinnedFavoriteConversations, ...rest];
+  }, [filteredConversations, pinnedFavoriteConversations, selectedConversationIds]);
+
   useEffect(() => {
     if (!pendingSelectedShorthandIds.length) return;
     const resolved = pendingSelectedShorthandIds
@@ -931,7 +945,7 @@ export default function TranscriptViewer() {
             )}
           </div>
           <div className="overflow-y-auto space-y-2 flex-1 min-h-0 max-h-[45vh] xl:max-h-none">
-            {filteredConversations.map((conversation) => (
+            {sidebarConversations.map((conversation) => (
               <div
                 key={conversation.id}
                 onClick={() => setSelectedId(conversation.id)}
@@ -990,6 +1004,25 @@ export default function TranscriptViewer() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedId) toggleSelectedConversation(selectedId);
+                }}
+                disabled={!selectedConversation}
+                aria-label={
+                  selectedId && selectedConversationIds.includes(selectedId)
+                    ? `Unfavourite ${selectedConversation?.id ?? "conversation"}`
+                    : `Favourite ${selectedConversation?.id ?? "conversation"}`
+                }
+                className={`rounded-lg border px-2.5 py-1.5 text-xs sm:px-3 disabled:opacity-50 transition ${
+                  selectedId && selectedConversationIds.includes(selectedId)
+                    ? "border-primary bg-primary/20 text-themed"
+                    : "border-secondary text-secondary hover:border-primary/60"
+                }`}
+              >
+                {selectedId && selectedConversationIds.includes(selectedId) ? "★" : "☆"}
+              </button>
               <button
                 type="button"
                 onClick={copyTranscript}
