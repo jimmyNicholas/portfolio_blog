@@ -28,10 +28,18 @@ const QUERY_PARAM_KEYS = {
   or: "or",
   not: "not",
   datasets: "ds",
+  voices: "vf",
   mode: "mode",
   selected: "sel",
   focus: "focus",
 } as const;
+
+/** Voice filter uses AI / USER only (not `other`). */
+const VOICE_ORDER = ["ai", "user"] as const satisfies readonly Speaker[];
+const VOICE_LABELS: Record<(typeof VOICE_ORDER)[number], string> = {
+  ai: "AI",
+  user: "USER",
+};
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -54,6 +62,7 @@ type PieSegment = {
 type ParsedUrlState = {
   searchTerms: SearchTerms;
   datasets: Set<Dataset>;
+  voices: Set<Speaker>;
   mode: StatsViewMode;
   selectedShorthandIds: string[];
   focusMode: boolean;
@@ -84,6 +93,18 @@ function parseDatasetsFromUrl(rawValue: string | null) {
   return next.size > 0 ? next : new Set(DATASET_ORDER);
 }
 
+function parseVoicesFromUrl(rawValue: string | null): Set<Speaker> {
+  if (!rawValue?.trim()) return new Set<Speaker>(VOICE_ORDER);
+  const next = new Set<Speaker>();
+  for (const token of rawValue.split(",")) {
+    const trimmed = token.trim().toLowerCase();
+    if (trimmed === "ai" || trimmed === "user") {
+      next.add(trimmed);
+    }
+  }
+  return next.size > 0 ? next : new Set<Speaker>(VOICE_ORDER);
+}
+
 function parseModeFromUrl(rawValue: string | null): StatsViewMode {
   return rawValue === "pie" ? "pie" : "text";
 }
@@ -112,6 +133,7 @@ function parseUrlState(search: string): ParsedUrlState {
       not: params.get(QUERY_PARAM_KEYS.not) ?? "",
     },
     datasets: parseDatasetsFromUrl(params.get(QUERY_PARAM_KEYS.datasets)),
+    voices: parseVoicesFromUrl(params.get(QUERY_PARAM_KEYS.voices)),
     mode: parseModeFromUrl(params.get(QUERY_PARAM_KEYS.mode)),
     selectedShorthandIds: parseSelectedShorthandFromUrl(params.get(QUERY_PARAM_KEYS.selected)),
     focusMode: parseFocusFromUrl(params.get(QUERY_PARAM_KEYS.focus)),
@@ -172,6 +194,21 @@ function getTextMatchesCount(text: string, terms: string[]) {
     const matches = text.match(regex);
     return count + (matches?.length ?? 0);
   }, 0);
+}
+
+function getConversationVoiceHitCounts(
+  conversation: TranscriptConversation,
+  terms: string[],
+): { ai: number; user: number } {
+  let ai = 0;
+  let user = 0;
+  for (const message of conversation.messages) {
+    const termHits = getTextMatchesCount(message.text, terms);
+    if (termHits === 0) continue;
+    if (message.speaker === "ai") ai += termHits;
+    else if (message.speaker === "user") user += termHits;
+  }
+  return { ai, user };
 }
 
 function renderHighlightedText(
@@ -323,6 +360,7 @@ export default function TranscriptViewer() {
   const [selectedDatasets, setSelectedDatasets] = useState<Set<Dataset>>(
     new Set(DATASET_ORDER),
   );
+  const [selectedVoices, setSelectedVoices] = useState<Set<Speaker>>(() => new Set(VOICE_ORDER));
   const [searchTerms, setSearchTerms] = useState<SearchTerms>({
     and: "",
     or: "",
@@ -373,6 +411,7 @@ export default function TranscriptViewer() {
     (parsedState: ParsedUrlState) => {
       setSearchTerms(parsedState.searchTerms);
       setSelectedDatasets(parsedState.datasets);
+      setSelectedVoices(parsedState.voices);
       setStatsViewMode(parsedState.mode);
       setIsFocusMode(parsedState.focusMode);
       setPendingSelectedShorthandIds(parsedState.selectedShorthandIds);
@@ -421,12 +460,28 @@ export default function TranscriptViewer() {
 
   const filteredConversations = useMemo(() => {
     if (!payload) return [];
+    const voiceConstrained = positiveTerms.length > 0 && selectedVoices.size === 1;
+    const onlyVoice = voiceConstrained ? [...selectedVoices][0] : null;
+
     return payload.conversations.filter((conversation) => {
       if (!selectedDatasets.has(conversation.dataset)) return false;
       const searchableConversationText = `${conversation.id} ${conversation.searchableText}`;
-      return evaluateBooleanMatch(searchableConversationText, searchTerms);
+      if (!evaluateBooleanMatch(searchableConversationText, searchTerms)) return false;
+
+      if (voiceConstrained && onlyVoice) {
+        const { ai: aiHits, user: userHits } = getConversationVoiceHitCounts(
+          conversation,
+          positiveTerms,
+        );
+        if (onlyVoice === "ai") {
+          if (aiHits === 0) return false;
+        } else if (onlyVoice === "user") {
+          if (userHits === 0) return false;
+        }
+      }
+      return true;
     });
-  }, [payload, searchTerms, selectedDatasets]);
+  }, [payload, positiveTerms, searchTerms, selectedDatasets, selectedVoices]);
 
   const allConversationsById = useMemo(() => {
     const map = new Map<string, TranscriptConversation>();
@@ -546,6 +601,11 @@ export default function TranscriptViewer() {
       params.set(QUERY_PARAM_KEYS.datasets, orderedDatasets.join(","));
     }
 
+    const orderedVoices = VOICE_ORDER.filter((voice) => selectedVoices.has(voice));
+    if (orderedVoices.length > 0 && orderedVoices.length < VOICE_ORDER.length) {
+      params.set(QUERY_PARAM_KEYS.voices, orderedVoices.join(","));
+    }
+
     if (statsViewMode !== "text") params.set(QUERY_PARAM_KEYS.mode, statsViewMode);
     if (selectedConversationShorthandIds.length > 0) {
       params.set(QUERY_PARAM_KEYS.selected, selectedConversationShorthandIds.join(","));
@@ -564,6 +624,7 @@ export default function TranscriptViewer() {
     searchTerms,
     selectedConversationShorthandIds,
     selectedDatasets,
+    selectedVoices,
     statsViewMode,
   ]);
 
@@ -646,6 +707,25 @@ export default function TranscriptViewer() {
       }
 
       return next.size === 0 ? new Set(DATASET_ORDER) : next;
+    });
+  };
+
+  const toggleVoice = (voice: (typeof VOICE_ORDER)[number]) => {
+    if (positiveTerms.length === 0) return;
+    setSelectedVoices((current) => {
+      const allSelected = current.size === VOICE_ORDER.length;
+      if (allSelected) {
+        return new Set<Speaker>([voice]);
+      }
+
+      const next = new Set(current);
+      if (next.has(voice)) {
+        next.delete(voice);
+      } else {
+        next.add(voice);
+      }
+
+      return next.size === 0 ? new Set<Speaker>(VOICE_ORDER) : next;
     });
   };
 
@@ -823,7 +903,7 @@ export default function TranscriptViewer() {
           </div>
 
           <div className="border-t border-secondary pt-3 mb-3">
-            <h2 className="font-mono font-bold text-themed mb-2">Datasets</h2>
+            <h2 className="font-mono font-bold text-themed mb-2">Dataset and Voice Filter</h2>
             <div className="flex flex-wrap gap-2 mb-2">
               <button
                 type="button"
@@ -850,6 +930,30 @@ export default function TranscriptViewer() {
                     }`}
                   >
                     {DATASET_LABELS[dataset]}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {VOICE_ORDER.map((voice) => {
+                const active = selectedVoices.has(voice);
+                const voiceDisabled = positiveTerms.length === 0;
+                return (
+                  <button
+                    key={voice}
+                    type="button"
+                    disabled={voiceDisabled}
+                    title={voiceDisabled ? "Add a search term first" : undefined}
+                    onClick={() => toggleVoice(voice)}
+                    className={`rounded-full border px-3 py-1 text-xs transition ${
+                      voiceDisabled
+                        ? "cursor-not-allowed opacity-50 border-secondary bg-secondary/10 text-secondary"
+                        : active
+                          ? "border-primary bg-primary/20 text-themed"
+                          : "border-secondary bg-secondary/20 text-secondary"
+                    }`}
+                  >
+                    {VOICE_LABELS[voice]}
                   </button>
                 );
               })}
