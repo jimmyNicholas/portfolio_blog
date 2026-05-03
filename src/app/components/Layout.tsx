@@ -14,6 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const isHomePage = pathname === "/";
   const isEmbedRoute = pathname.startsWith("/elicosgamification");
+  const isStandaloneDocRoute = pathname.startsWith("/work/anthropic_transcript_codebook");
   const shouldHideChrome = isTranscriptFocusMode;
 
   React.useEffect(() => {
@@ -45,6 +46,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
     );
+  }
+
+  if (isStandaloneDocRoute) {
+    return <div className="min-h-screen w-full">{children}</div>;
   }
 
   return (
