@@ -1,0 +1,417 @@
+.root {
+  --bg: #fafaf7;
+  --bg-soft: #f3f2ec;
+  --ink: #1a1a1a;
+  --ink-soft: #3a3a3a;
+  --ink-faint: #5a5a5a;
+  --rule: #c5c3b8;
+  --rule-strong: #2a2a2a;
+  --accent: #4a2f22;
+  --focus: #1a4a8c;
+  --tensions: #8b3d3d;
+  --tensions-bg: #fadadd;
+  --redistribution: #2d5a3d;
+  --redistribution-bg: #c1e1c1;
+  --vision: #3a4a7a;
+  --vision-bg: #c1d3fb;
+  --diagram-pastel-tensions: #fadadd;
+  --diagram-pastel-green: #c1e1c1;
+  --diagram-pastel-blue: #c1d3fb;
+  /* Reading vs display: narrow prose, slightly wider figures/tables (aligned left) */
+  --prose-max: min(100%);
+  --display-max: min(100%);
+  --page-inner-max: min(1400px, 100%);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.page {
+  width: 90%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 4rem clamp(1.25rem, 4vw, 2.5rem) 6rem;
+  box-sizing: border-box;
+}
+
+.header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2.5rem;
+  margin-bottom: 3.5rem;
+  max-width: var(--page-inner-max);
+}
+
+.headerMeta {
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.title em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.subtitle {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  max-width: var(--prose-max);
+  font-style: normal;
+}
+
+.content {
+  min-width: 0;
+}
+
+.content section {
+  margin-bottom: 4rem;
+  scroll-margin-top: 2rem;
+}
+
+.sectionNumber {
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  max-width: var(--prose-max);
+}
+
+.h2 {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.75rem;
+  letter-spacing: -0.005em;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  color: var(--ink);
+  max-width: var(--prose-max);
+}
+
+.h2 em {
+  font-style: normal;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.h3 {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 2rem 0 0.75rem;
+  color: var(--ink);
+  max-width: var(--prose-max);
+}
+
+.p {
+  margin-bottom: 1.1rem;
+  max-width: var(--prose-max);
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin: 1.5rem 0 0.5rem;
+  border: 1px solid var(--rule);
+  width: 100%;
+  max-width: var(--display-max);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  font-family: var(--font-codebook-inter), system-ui, sans-serif;
+  background: var(--bg);
+}
+
+.tableCaption {
+  caption-side: bottom;
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.75rem;
+  text-align: left;
+  padding: 0.75rem 0 0;
+}
+
+.table thead th {
+  background: var(--bg-soft);
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--rule-strong);
+  vertical-align: bottom;
+}
+
+.table tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.primaryCell {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  width: 11%;
+  border-left: 4px solid;
+  color: var(--ink);
+}
+
+.secondaryCell {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  width: 12%;
+}
+
+.defCell {
+  width: 22%;
+  color: var(--ink-soft);
+}
+
+.exampleCell {
+  width: 28%;
+}
+
+.notesCell {
+  width: 27%;
+  color: var(--ink-soft);
+}
+
+.quote {
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.source {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.groupTensions {
+  background: var(--tensions-bg);
+  border-left-color: var(--tensions) !important;
+}
+
+.groupRedistribution {
+  background: var(--redistribution-bg);
+  border-left-color: var(--redistribution) !important;
+}
+
+.groupVision {
+  background: var(--vision-bg);
+  border-left-color: var(--vision) !important;
+}
+
+/* Row tint: lighter wash across cells; primary column stays saturated (code map hierarchy) */
+.clusterRowTensions td {
+  background: color-mix(in srgb, var(--tensions-bg) 22%, var(--bg));
+}
+
+.clusterRowTensions .primaryCell.groupTensions {
+  background: var(--tensions-bg);
+}
+
+.clusterRowRedistribution td {
+  background: color-mix(in srgb, var(--redistribution-bg) 22%, var(--bg));
+}
+
+.clusterRowRedistribution .primaryCell.groupRedistribution {
+  background: var(--redistribution-bg);
+}
+
+.clusterRowVision td {
+  background: color-mix(in srgb, var(--vision-bg) 22%, var(--bg));
+}
+
+.clusterRowVision .primaryCell.groupVision {
+  background: var(--vision-bg);
+}
+
+.diagramWrap {
+  margin: 2rem 0 1rem;
+  width: 100%;
+  max-width: var(--display-max);
+}
+
+/* PNG asset includes its own grid/background; frame only */
+.diagramFrame {
+  border: 1px solid var(--rule);
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  background: var(--bg-soft);
+}
+
+.diagramImage {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.diagramFigcaption {
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 0.75rem;
+}
+
+.references {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.references li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  text-indent: -2rem;
+  font-family: var(--font-codebook-lora), Georgia, serif;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  max-width: var(--prose-max);
+}
+
+.references a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.references a:hover {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
+}
+
+.references a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.em {
+  font-style: italic;
+}
+
+.code {
+  font-family: var(--font-codebook-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--bg-soft);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+
+.diagramTextSummary {
+  margin-top: 1rem;
+}
+
+.diagramTextSummary ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+}
+
+@media (max-width: 880px) {
+  .page {
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  .h2 {
+    font-size: 1.5rem;
+  }
+
+  .table {
+    font-size: 0.82rem;
+  }
+
+  .table tbody td {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .tableWrap {
+    font-size: 0.75rem;
+  }
+
+  .table {
+    min-width: 720px;
+  }
+}
+
+@media print {
+  .root {
+    background: white;
+    font-size: 11pt;
+  }
+
+  .page {
+    padding: 1cm;
+    max-width: 100%;
+  }
+
+  .content section {
+    page-break-inside: avoid;
+  }
+
+  .diagramFrame {
+    background: white;
+    border: 1px solid #999;
+  }
+}
