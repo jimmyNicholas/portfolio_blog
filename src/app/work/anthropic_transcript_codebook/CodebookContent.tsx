@@ -285,77 +285,68 @@ export default function CodebookContent() {
           </section>
 
           <section id="cds" aria-labelledby="cds-heading">
-            <h2 id="cds-heading" className={styles.h2}>
-              Critical Data Studies Connection
-            </h2>
-            <p className={styles.p}>
-              Two concepts from Critical Data Studies (Kitchin, 2024) connect directly to this codebook.
-              The first is ontology, which concerns how the nature of being is constructed and understood. The codebook reflects a constructivist
-              nature of being is constructed and understood. The codebook reflects a constructivist
-              position on AI-mediated creative practice. Codes such as Vision Mediation and Cognitive
-              Role Shift treat creative work not as a stable activity but as a set of practices whose
-              ontological boundaries shift when AI enters the process. What counts as &ldquo;the
-              work,&rdquo; &ldquo;the author,&rdquo; and &ldquo;the creative act&rdquo; becomes unstable
-              when ideation, production, and execution are distributed across user and AI. The
-              Authenticity code captures users themselves grappling with this instability, asking whether
-              AI-assisted output remains genuinely theirs. The codebook itself is also an ontological act,
-              the categories it constructs shape what counts as a finding rather than discovering
-              pre-existing entities in the data.
-            </p>
-            <p className={styles.p}>
-              The second concept is data labour, which describes the often invisible work performed to make data infrastructures function. The
-              describes the often invisible work performed to make data infrastructures function. The
-              Cognitive Stress code captures one form of this work directly: prompt-crafting, output
-              refinement, and the deliberate effort users invest to make AI useful. This labour is not
-              visible in the AI&apos;s output but is essential to producing it. The Cognitive Role Shift
-              code documents a related restructuring, with users moving from production into curation,
-              direction, and integration roles. Together these codes suggest that AI does not eliminate
-              creative labour but redistributes and partially obscures it, raising questions about how
-              this work is recognised, valued, and attributed in AI-mediated creative practice. This
-              reframes the productivity gains users describe: AI does not reduce creative labour so much as
-              relocate it from visible production into less visible cognitive coordination.
-            </p>
-          </section>
+  <h2 id="cds-heading" className={styles.h2}>
+    Critical Data Studies Connection
+  </h2>
+  <p className={styles.p}>
+    Two concepts from Critical Data Studies (Kitchin, 2024) connect directly to this codebook.
+    The first is ontology, which concerns how the nature of being is constructed and understood.
+    The codebook reflects a constructivist position on AI-mediated creative practice. Codes such
+    as Vision Mediation and Cognitive Role Shift treat creative work not as a stable activity but
+    as a set of practices whose ontological boundaries shift when AI enters the process. What
+    counts as &ldquo;the work,&rdquo; &ldquo;the author,&rdquo; and &ldquo;the creative
+    act&rdquo; becomes unstable when ideation, production, and execution are distributed across
+    user and AI. The Authenticity code captures users themselves grappling with this instability,
+    asking whether AI-assisted output remains genuinely theirs. The codebook itself is also an
+    ontological act, the categories it constructs shape what counts as a finding rather than
+    discovering pre-existing entities in the data.
+  </p>
+  <p className={styles.p}>
+    The second concept is data labour, which describes the often invisible work performed to make
+    data infrastructures function. The Cognitive Stress code captures one form of this work
+    directly: prompt-crafting, output refinement, and the deliberate effort users invest to make
+    AI useful. This labour is not visible in the AI&apos;s output but is essential to producing
+    it. The Cognitive Role Shift code documents a related restructuring, with users moving from
+    production into curation, direction, and integration roles. Together these codes suggest that
+    AI does not eliminate creative labour but redistributes and partially obscures it, raising
+    questions about how this work is recognised, valued, and attributed in AI-mediated creative
+    practice. This reframes the productivity gains users describe: AI does not reduce creative
+    labour so much as relocate it from visible production into less visible cognitive
+    coordination.
+  </p>
+</section>
 
           <section id="references" aria-labelledby="references-heading">
             <h2 id="references-heading" className={styles.h2}>
               <em>References</em>
             </h2>
             <ol className={styles.references}>
-              <li>
-                Anthropic. (2026). <em className={styles.em}>Anthropic Interviewer</em>. Anthropic.{" "}
-                <a
-                  href="https://www.anthropic.com/research/anthropic-interviewer"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  https://www.anthropic.com/research/anthropic-interviewer
-                </a>
-              </li>
-              <li>
-                Kitchin, R. (2024). <em className={styles.em}>
-                  Critical data studies: An A to Z guide to concepts and methods
-                </em>
-                . Polity Press.{" "}
-                <a
-                  href="https://polity-books-backend.prod.politybooks.wiley.host/wp-content/uploads/2024/12/KITCHIN-9781509566525-EPDF.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  https://polity-books-backend.prod.politybooks.wiley.host/wp-content/uploads/2024/12/KITCHIN-9781509566525-EPDF.pdf
-                </a>
-              </li>
-              <li>
-                Nicholas, J. (2026). <em className={styles.em}>Transcript viewer</em> [Web application].{" "}
-                <a
-                  href="https://jimmynicholas.com/work/transcript-viewer/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  https://jimmynicholas.com/work/transcript-viewer/
-                </a>
-              </li>
-            </ol>
+  <li>
+    Anthropic. (2026). <em className={styles.em}>Anthropic interviewer</em> [Research page]. Retrieved April 26, 2026, from{" "}
+    
+      <a href="https://www.anthropic.com/research/anthropic-interviewer"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      https://www.anthropic.com/research/anthropic-interviewer
+    </a>
+  </li>
+  <li>
+    Kitchin, R. (2024). <em className={styles.em}>
+      Critical data studies: An A to Z guide to concepts and methods
+    </em>. Polity Press.
+  </li>
+  <li>
+    Nicholas, J. (2026). <em className={styles.em}>Transcript viewer</em> [Project page]. Retrieved April 27, 2026, from{" "}
+    
+      <a href="https://jimmynicholas.com/work/transcript-viewer/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      https://jimmynicholas.com/work/transcript-viewer/
+    </a>
+  </li>
+</ol>
           </section>
       </main>
     </div>
