@@ -5,14 +5,10 @@ export default function CodebookContent() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div className={styles.headerMeta}>ADM6013 · Assessment 1 · Dataset Review and Codebook</div>
         <h1 className={styles.title}>
-          AI-Mediated Creative Practice
+        Dataset Review and Codebook
         </h1>
-        <p className={styles.subtitle}>
-          A codebook of how creatives describe AI in their work, drawn from the Anthropic Interviewer
-          dataset.
-        </p>
+        <div className={styles.headerMeta}>ADM6013 · Assessment 1</div>
       </header>
 
       <main className={styles.content}>
