@@ -3,8 +3,7 @@ import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useThemeContext } from "./ThemeProvider";
 import Navigation from "./Navigation";
-import ModeToggle from "./ModeToggle";
-import SocialLinks from "../components/SocialLinks";
+import IconBar from "./IconBar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -59,8 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     >
       {!isBusinessMode && <div style={effectStyles.overlay} />}
 
-      {!shouldHideChrome && <SocialLinks />}
-      {!shouldHideChrome && <ModeToggle />}
+      {!shouldHideChrome && <IconBar />}
 
       <div className="min-h-full">
         <div
