@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useThemeContext } from "../components/ThemeProvider";
 
 interface Project {
@@ -10,25 +11,28 @@ interface Project {
   description: string;
   tags: string[];
   link?: string;
+  slug?: string;
   image?: string;
 }
 
 const projects: Project[] = [
   {
-    id: "gamification-elearning",
-    title: "Gamification in the Classroom",
-    description: "A fully interactive eLearning module exploring the Caillois framework through hands-on game experiences. Built with xAPI tracking and LMS integration.",
-    tags: ["Education", "Digital Teaching", "Code", "TypeScript", "React", "Next.js"],
-    image: "/images/projects/gamification-classroom.png",
-    link: "gamification-module-sepia.vercel.app",
+    id: "generating-silence",
+    title: "Generating Silence",
+    description:
+      "Designed a three-session blended course on experimental music and AI prompting for tertiary students, building a reusable tool system and visual design language before writing a single line of course content.",
+    tags: ["education", "LMS", "Curriculum Design", "Self-hosted Moodle"],
+    image: "/images/projects/generating-silence.png",
+    slug: "generating-silence",
   },
   {
-    id: "gamification-proposal",
-    title: "Gamification in the Classroom – Design Proposal",
-    description: "A blended learning design proposal for Australian ELICOS teachers, covering needs analysis, audience personas, learning objectives, and curriculum design grounded in Action Mapping.",
-    tags: ["Education", "Digital Teaching", "Action Mapping", "Bloom's Taxonomy"],
-    image: "/images/projects/design-proposal.png",
-    link: "jimmynicholas.com/work/gamification-proposal",
+    id: "gamification",
+    title: "Gamification in the Classroom",
+    description:
+      "Designed a custom diagnostic tool that guides teachers through game-type selection, built in Next.js when the recommended platform could not support the interaction.",
+    tags: ["education", "Custom Build", "Interactive", "xAPI"],
+    image: "/images/projects/gamification-classroom.png",
+    slug: "gamification",
   },
   {
     id: "dining-facilities-at-work",
@@ -37,6 +41,15 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching", "RISE 360"],
     image: "/images/projects/dining-facilities.png",
     link: "jimmynicholas.com/work/dining-facilities-at-work",
+  },
+  {
+    id: "anthropic-interviewer-conversation-viewer",
+    title: "Anthropic Interviewer: Transcript Viewer",
+    description:
+      "Browse interview transcripts with searchable, filterable AI/User separation.",
+    tags: ["Education", "Code"],
+    image: "/images/projects/antropic-interviewer.png",
+    link: "jimmynicholas.com/work/transcript-viewer",
   },
   {
     id: "story-buddy",
@@ -53,23 +66,6 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching"],
     image: "/images/projects/e-scooter_safety.png",
     link: "jimmynicholas.com/work/e-scooter-safety-course",
-  },
-  {
-    id: "note-clustering",
-    title: "Note Clustering",
-    description: "An interactive canvas for clustering notes into meaningful groups.",
-    tags: ["Code", "Web", "React"],
-    image: "/images/projects/note-clustering.png",
-    link: "jimmynicholas.com/work/note-clustering",
-  },
-  {
-    id: "anthropic-interviewer-conversation-viewer",
-    title: "Anthropic Interviewer: Transcript Viewer",
-    description:
-      "Browse interview transcripts with searchable, filterable AI/User separation.",
-    tags: ["Education", "Code"],
-    image: "/images/projects/antropic-interviewer.png",
-    link: "jimmynicholas.com/work/transcript-viewer",
   },
   {
     id: "tone-clock",
@@ -146,6 +142,7 @@ const WorkPage = () => {
 
   const ProjectCard = ({ project }: { project: Project }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const getCardStyle = () => ({
       backgroundColor: isHovered
@@ -157,6 +154,70 @@ const WorkPage = () => {
         : "0 0 20px color-mix(in srgb, var(--palette-primary) 20%, transparent)",
     });
 
+    const card = (
+      <motion.div
+        className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 ${
+          !isBusinessMode ? "crt-scanlines" : ""
+        } p-6 flex flex-col cursor-pointer`}
+        style={getCardStyle()}
+        whileHover={{ scale: 1.01 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Title */}
+        <h3 className="font-mono font-bold text-themed text-base mb-4">
+          {project.title}
+        </h3>
+
+        {/* Image Frame with Hover Overlay */}
+        <div className="relative h-[200px] mb-4 rounded-xl overflow-hidden bg-black border-2 border-[color:var(--palette-secondary)]">
+          <div className="w-full h-full p-3">
+            {project.image && !imageError ? (
+              <Image
+                src={project.image}
+                alt={project.title}
+                width={400}
+                height={200}
+                className="w-full h-full object-contain transition-transform duration-300"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-orange-400 rounded" aria-hidden="true" />
+            )}
+          </div>
+
+          {/* Dark Overlay with Description and Tags */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-300 flex items-center justify-center p-4">
+            <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-300 text-center">
+              <p className="text-white mb-3 text-sm md:text-base font-mono">
+                {project.description}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tags Below Image */}
+        <div className="flex flex-wrap gap-2">
+          {project.tags.map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-themed"
+            >
+              {techAbbreviations[tag] || tag}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+    );
+
+    if (project.slug) {
+      return (
+        <Link href={`/work/${project.slug}`} className="group block">
+          {card}
+        </Link>
+      );
+    }
+
     return (
       <a
         href={project.link ? `https://${project.link}` : undefined}
@@ -164,56 +225,7 @@ const WorkPage = () => {
         rel="noopener noreferrer"
         className={`group block ${!project.link ? "pointer-events-none" : ""}`}
       >
-        <motion.div
-          className={`relative border-2 border-secondary rounded-3xl transition-all duration-300 ${
-            !isBusinessMode ? "crt-scanlines" : ""
-          } p-6 flex flex-col cursor-pointer`}
-          style={getCardStyle()}
-          whileHover={{ scale: 1.01 }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Title */}
-          <h3 className="font-mono font-bold text-themed text-base mb-4">
-            {project.title}
-          </h3>
-
-          {/* Image Frame with Hover Overlay */}
-          <div className="relative h-[200px] mb-4 rounded-xl overflow-hidden bg-black border-2 border-[color:var(--palette-secondary)]">
-            <div className="w-full h-full p-3">
-            {project.image && (
-              <Image
-                src={project.image}
-                alt={project.title}
-                width={400}
-                height={200}
-                className="w-full h-full object-contain transition-transform duration-300"
-              />
-            )}
-            </div>
-
-            {/* Dark Overlay with Description and Tags */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-300 flex items-center justify-center p-4">
-              <div className="opacity-0 group-hover:opacity-80 transition-opacity duration-300 text-center">
-                <p className="text-white mb-3 text-sm md:text-base font-mono">
-                  {project.description}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Tags Below Image */}
-          <div className="flex flex-wrap gap-2">
-            {project.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-1 rounded-full text-xs font-mono border border-primary text-themed"
-              >
-                {techAbbreviations[tag] || tag}
-              </span>
-            ))}
-          </div>
-        </motion.div>
+        {card}
       </a>
     );
   };
