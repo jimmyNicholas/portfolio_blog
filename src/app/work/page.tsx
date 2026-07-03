@@ -17,11 +17,20 @@ interface Project {
 
 const projects: Project[] = [
   {
+    id: "generating-silence",
+    title: "Generating Silence",
+    description:
+      "Designed a three-session blended course on experimental music and AI prompting for tertiary students, building a reusable tool system and visual design language before writing a single line of course content.",
+    tags: ["education", "LMS", "Curriculum Design", "Self-hosted Moodle"],
+    image: "/images/projects/generating-silence.png",
+    slug: "generating-silence",
+  },
+  {
     id: "gamification",
     title: "Gamification in the Classroom",
     description:
       "Designed a custom diagnostic tool that guides teachers through game-type selection, built in Next.js when the recommended platform could not support the interaction.",
-    tags: ["education"],
+    tags: ["education", "Custom Build", "Interactive", "xAPI"],
     image: "/images/projects/gamification-classroom.png",
     slug: "gamification",
   },
@@ -32,6 +41,15 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching", "RISE 360"],
     image: "/images/projects/dining-facilities.png",
     link: "jimmynicholas.com/work/dining-facilities-at-work",
+  },
+  {
+    id: "anthropic-interviewer-conversation-viewer",
+    title: "Anthropic Interviewer: Transcript Viewer",
+    description:
+      "Browse interview transcripts with searchable, filterable AI/User separation.",
+    tags: ["Education", "Code"],
+    image: "/images/projects/antropic-interviewer.png",
+    link: "jimmynicholas.com/work/transcript-viewer",
   },
   {
     id: "story-buddy",
@@ -48,23 +66,6 @@ const projects: Project[] = [
     tags: ["Education", "Digital Teaching"],
     image: "/images/projects/e-scooter_safety.png",
     link: "jimmynicholas.com/work/e-scooter-safety-course",
-  },
-  {
-    id: "note-clustering",
-    title: "Note Clustering",
-    description: "An interactive canvas for clustering notes into meaningful groups.",
-    tags: ["Code", "Web", "React"],
-    image: "/images/projects/note-clustering.png",
-    link: "jimmynicholas.com/work/note-clustering",
-  },
-  {
-    id: "anthropic-interviewer-conversation-viewer",
-    title: "Anthropic Interviewer: Transcript Viewer",
-    description:
-      "Browse interview transcripts with searchable, filterable AI/User separation.",
-    tags: ["Education", "Code"],
-    image: "/images/projects/antropic-interviewer.png",
-    link: "jimmynicholas.com/work/transcript-viewer",
   },
   {
     id: "tone-clock",
@@ -141,6 +142,7 @@ const WorkPage = () => {
 
   const ProjectCard = ({ project }: { project: Project }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const getCardStyle = () => ({
       backgroundColor: isHovered
@@ -170,14 +172,17 @@ const WorkPage = () => {
         {/* Image Frame with Hover Overlay */}
         <div className="relative h-[200px] mb-4 rounded-xl overflow-hidden bg-black border-2 border-[color:var(--palette-secondary)]">
           <div className="w-full h-full p-3">
-            {project.image && (
+            {project.image && !imageError ? (
               <Image
                 src={project.image}
                 alt={project.title}
                 width={400}
                 height={200}
                 className="w-full h-full object-contain transition-transform duration-300"
+                onError={() => setImageError(true)}
               />
+            ) : (
+              <div className="w-full h-full bg-orange-400 rounded" aria-hidden="true" />
             )}
           </div>
 
